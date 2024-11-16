@@ -1,0 +1,19 @@
+#ifndef HELPER_H
+#define HELPER_H
+
+#define LED_GPIO GPIO_NUM_2
+#define BUTTON_GPIO GPIO_NUM_0
+#define UP_GPIO GPIO_NUM_25
+#define DOWN_GPIO GPIO_NUM_27
+#define SELECT_GPIO GPIO_NUM_26
+#define RETURN_GPIO GPIO_NUM_12
+
+#define VERSION "v0.1.7.0-esp32"
+#define ROW_SIZE 7
+#define COLUMN_SIZE 7
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
+#define TAG "SSD1306"
+
+#endif
