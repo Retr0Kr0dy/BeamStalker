@@ -8,7 +8,7 @@
 #define SELECT_GPIO GPIO_NUM_26
 #define RETURN_GPIO GPIO_NUM_12
 
-#define VERSION "v0.1.7.0-esp32"
+#define VERSION "v0.1.8.3-esp32"
 #define ROW_SIZE 7
 #define COLUMN_SIZE 7
 #define SCREEN_WIDTH 128

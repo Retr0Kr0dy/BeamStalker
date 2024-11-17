@@ -14,7 +14,9 @@
 
 #include "helper.h"
 #include "bitmaps.h"
+
 #include "apps/Options.h"
+#include "apps/wifcker.h"
 
 SSD1306_t dev;
 
@@ -35,17 +37,16 @@ int intChecker (int value, int lenght) {
 	return value;
 }
 
-void drawMenu(char* element[], int selector, int lenght) {
-	int i1 = intChecker(selector-2,lenght);
+void drawMenu(char* element[], int selector, int lenght, char *menuName) {
+//	int i1 = intChecker(selector-2,lenght);
 	int i2 = intChecker(selector-1,lenght);
 	int i4 = intChecker(selector+1,lenght);
-	int i5 = intChecker(selector+2,lenght);
 
-    ssd1306_display_text(&dev, 0, element[i1], strlen(element[i1]), false);
+//    ssd1306_display_text(&dev, 0, element[i1], strlen(element[i1]), false);
+    ssd1306_display_text(&dev, 0, menuName, strlen(menuName), false);
     ssd1306_display_text(&dev, 2, element[i2], strlen(element[i2]), false);
     ssd1306_display_text(&dev, 4, element[selector], strlen(element[selector]), true);
-    ssd1306_display_text(&dev, 6, element[i4], strlen(element[i1]), false);
-    ssd1306_display_text(&dev, 8, element[i5], strlen(element[i1]), false);
+    ssd1306_display_text(&dev, 6, element[i4], strlen(element[i4]), false);
 }
 
 
@@ -55,15 +56,16 @@ void mainTask(void *pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(100));
 
     int MainMenuSelector = 0;
-	char* MainMenuElements[] = {"Logo              ", "The Eye           ", "Options         "};
+	char* MainMenuElements[] = {"WiFcker          ", "The Eye           ", "Options         "};
 	int MainMenuLenght = sizeof(MainMenuElements) / sizeof(MainMenuElements[0]);
+    char *MainMenuName = "~/";
 
     for (;;) {
         int UPp, DOWNp, SELECTp;
 //, RETURNp;
 
         while(1) {
-        	drawMenu(MainMenuElements, MainMenuSelector, MainMenuLenght);
+        	drawMenu(MainMenuElements, MainMenuSelector, MainMenuLenght, MainMenuName);
 
             UPp = !gpio_get_level(UP_GPIO);
             DOWNp = !gpio_get_level(DOWN_GPIO);
@@ -83,14 +85,16 @@ void mainTask(void *pvParameters) {
         	else if (SELECTp) {
                 vTaskDelay(pdMS_TO_TICKS(50));
                 switch (MainMenuSelector) {
+                    int ret;
                     case 2:
                         ssd1306_clear_screen(&dev, false);
-            			int ret = APP_Options();
+            			ret = APP_Options();
                         if (ret!=0) {printf ("Error in app.");}
                         break;
                     case 0:
-                        ssd1306_bitmaps(&dev, 0, 0, skulls, 128, 64, false);
-                        vTaskDelay(pdMS_TO_TICKS(2000));
+                        ssd1306_clear_screen(&dev, false);
+                        ret = APP_WiFcker();
+                        if (ret!=0) {printf ("Error in app.");}
                         break;
                 }
                 ssd1306_clear_screen(&dev, false);
@@ -147,5 +151,5 @@ void app_main(void) {
     }
 
     ssd1306_clear_screen(&dev, false);
-    xTaskCreate(mainTask, "BeamStalker", 2048, NULL, 1, NULL);
+    xTaskCreate(mainTask, "BeamStalker", 4096, NULL, 1, NULL);
 }
