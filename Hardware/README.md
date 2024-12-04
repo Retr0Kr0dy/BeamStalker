@@ -1,21 +1,8 @@
-# Current wiring for BeamStalker prototype v0.1
+# Current wiring for BeamStalker prototype v0.2
 
-### With 5-way push button and SSD1306 display
+### M5Stack Cardputer
 
-#### SSD1306
+Keyboard lib used :
 
-|ESP32|SSD1306|
-|-|-|
-|GND|GND|
-|3V3|VCC|
-|GPIO22|SCK|
-|GPIO21|SDA|
+[https://github.com/Retr0Kr0dy/M5Cardputer](M5Cardputer) Forked from [M5Stack/M5Cardputer](https://github.com/m5stack/M5Cardputer) and modified for esp-idf flavor (no more `"arduino.h"`)
 
-#### 5-way push button
-
-|ESP32|5-way pb|
-|-|-|
-|GPIO25|UP|
-|GPIO27|DOWN|
-|GPIO26|SELECT|
-|GPIO12|RETURN|

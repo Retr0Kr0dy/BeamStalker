@@ -1,2 +1,3 @@
-idf_component_register(SRCS "BeamStalker-firmware.c"
-                    INCLUDE_DIRS "")
+idf_component_register(SRCS "BeamStalker-cardputer.cpp"
+                    INCLUDE_DIRS "."
+)
