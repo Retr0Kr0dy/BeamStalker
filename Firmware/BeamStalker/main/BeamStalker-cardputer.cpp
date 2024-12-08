@@ -27,7 +27,7 @@ M5Canvas canvas(&display);
 
 float charsize_multiplier = 0.5;
 int font_size = 18;
-int charsize = (int)(font_size*charsize_multiplier)+((40*18)/100);
+int charsize = (int)(font_size*charsize_multiplier)+((40*font_size)/100);
 
 int LogError(const std::string& message) {
     M5GFX_clear_screen();
@@ -81,7 +81,6 @@ char *createHeaderLine(const char *menu_name) {
     }
 
     int batteryLevel = M5Cardputer.Power.getBatteryLevel();
-
     char bat_percentage_str[12];
 
     if (batteryLevel >= 0 && batteryLevel <= 100) {
@@ -91,7 +90,6 @@ char *createHeaderLine(const char *menu_name) {
     }
 
     int16_t batteryVoltage = M5Cardputer.Power.getBatteryVoltage();
-
     char bat_voltage_str[12];
 
     if (batteryVoltage >= 0 && batteryVoltage <= 10000) {
@@ -121,7 +119,23 @@ void drawMenu(struct menu Menu, int selector) {
         struct item element = Menu.elements[intChecker(selector+i, Menu.length)];
 
         if (element.type == 0) {
-            snprintf (element_str, sizeof(element_str), "%s: %s", element.name, element.options[intChecker(element.selector, element.length)]);
+            const int max_element = 14;
+            const int max_value = 10-4;
+            char cropped_element[max_element + 1];
+
+            if (strlen(element.name) > max_element) {
+                strncpy(cropped_element, element.name + (strlen(element.name) - max_element), max_element);
+                cropped_element[max_element] = '\0';
+            } else {
+                strncpy(cropped_element, element.name, max_element);
+                cropped_element[strlen(element.name)] = '\0';
+            }
+
+            if (i == 0) {
+                snprintf(element_str, sizeof(element_str), "%-*s <%-*s>", max_element, cropped_element, max_value, element.options[intChecker(element.selector, element.length)]);
+            } else {
+                snprintf(element_str, sizeof(element_str), "%-*s  %-*s ", max_element, cropped_element, max_value, element.options[intChecker(element.selector, element.length)]);
+            }
         } else if (element.type == 1) {
             snprintf (element_str, sizeof(element_str), "%s",element.name);
         }
@@ -245,7 +259,6 @@ extern "C" void app_main(void) {
     M5.Display.setTextSize(charsize_multiplier);
     M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
     M5.Display.setFont(&fonts::FreeMonoBold18pt7b);
-
     const char* name = "BeamStalker";
 
     for (;;) {
