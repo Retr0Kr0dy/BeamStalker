@@ -1,7 +1,7 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#define VERSION "cp-v0.2.3.6"
+#define VERSION "cp-v0.2.3.12"
 #define ROW_SIZE 7
 #define COLUMN_SIZE 7
 #define SCREEN_WIDTH 128

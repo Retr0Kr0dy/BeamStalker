@@ -41,15 +41,15 @@ int APP_Options() {
 
     drawMenu(Menu, Selector);
 
-    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
+    int UPp, DOWNp, SELECTp, RETURNp;
 
     while (1) {
         M5Cardputer.update();
         if (M5Cardputer.Keyboard.isChange()) {
             UPp = M5Cardputer.Keyboard.isKeyPressed(';');
             DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
-            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
-            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
+//            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
+//            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
             SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 

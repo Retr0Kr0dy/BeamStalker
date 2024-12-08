@@ -3,6 +3,8 @@
 
 #include <M5Cardputer.h>
 
+#include "firmware/menu.h"
+
 #define CHANNEL 11
 
 int charset;
@@ -160,61 +162,169 @@ void stop_pps_timer() {
     }
 }
 
-int sendBeaconTask() {
+int BeaconSpam() {
     srand(time(NULL));
     charset = 1;
 
-    int UPp, DOWNp, SELECTp, RETURNp;
+    int Selector = 0;
+    struct menu Menu;
+
+    Menu.name = "~/WiFcker/Beacon Spam";
+    Menu.length = 2;  // charset, statack
+    Menu.elements = new item[Menu.length];
+
+    Menu.elements[0].name = "Charset";
+    Menu.elements[0].type = 0;
+    Menu.elements[0].length = 4;
+    Menu.elements[0].options[0] = "hig";
+    Menu.elements[0].options[1] = "kat";
+    Menu.elements[0].options[2] = "cyr";
+    Menu.elements[0].options[3] = "CDLD";
+    Menu.elements[0].options[4] = NULL; // Terminate options explicitly
+
+
+    Menu.elements[1].name = "Start attack";
+    Menu.elements[1].type = 1;
+    Menu.elements[1].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[1].options[i] = NULL;
+    }
+
+    drawMenu(Menu, Selector);
+
+    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
 
     while (1) {
         M5Cardputer.update();
         if (M5Cardputer.Keyboard.isChange()) {
-            // Read button states (Replace with your specific M5 button setup)
             UPp = M5Cardputer.Keyboard.isKeyPressed(';');
             DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
+            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
+            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
             SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
                 return 0;
             }
-
-            M5.Display.clear();
-            M5.Display.setCursor(0, 0);
-            M5.Display.printf("Charset: %d\n", charset);
-            M5.Display.println("Press SELECT to start...");
-
-            M5.update();
-            if (UPp) charset = (charset + 1) % 4;
-            if (DOWNp) charset = (charset - 1 + 4) % 4;
-
-            if (SELECTp) {
-                init_pps_timer();
-
-                M5.Display.printf("Starting\n");
-
-                vTaskDelay(pdMS_TO_TICKS(300));
-
-                int wait = 1;
-                while (wait) {
-                    M5Cardputer.update();
-                    if (M5Cardputer.Keyboard.isPressed()) {
-                        wait = 0;
-                    }
-
-                    packet_count++;
-
-                    troll();
-                    for (int i = 0; i < 10; i++) {
-                        vTaskDelay(pdMS_TO_TICKS(0));  // Yield the processor for a short duration
-                    }
-                }
-
-                stop_pps_timer();
-                vTaskDelay(pdMS_TO_TICKS(100));
+            else if (UPp) {
+                Selector = intChecker(Selector - 1, Menu.length);
+                vTaskDelay(pdMS_TO_TICKS(50));
             }
+            else if (DOWNp) {
+                Selector = intChecker(Selector + 1, Menu.length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (LEFTp && (Menu.elements[Selector].type == 0)) {
+                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (RIGHTp  && (Menu.elements[Selector].type == 0)) {
+                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            if (SELECTp) {
+                M5GFX_clear_screen();
+                switch (Selector) {
+                    case 1:  // Start attack
+                        init_pps_timer();
+                        vTaskDelay(pdMS_TO_TICKS(100));
+                        int wait = 1;
+                        while (wait) {
+                            M5Cardputer.update();
+                            if (M5Cardputer.Keyboard.isPressed()) {
+                                wait = 0;
+                            }
+                            packet_count++;
+                            troll();
+                            for (int i = 0; i < 10; i++) {
+                                vTaskDelay(pdMS_TO_TICKS(0));  // Yield the processor for a short duration
+                            }
+                        }
+                        stop_pps_timer();
+                        break;
+                }
+            }
+            drawMenu(Menu, Selector);
         }
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
 
+
+}
+
+int menuTask() {
+    srand(time(NULL));
+    charset = 1;
+
+    int Selector = 0;
+    struct menu Menu;
+
+    Menu.name = "~/WiFcker";
+    Menu.length = 2;  // BeaconSpam, Deauther
+    Menu.elements = new item[Menu.length];
+
+    Menu.elements[0].name = "Beacon Spam";
+    Menu.elements[0].type = 1;
+    Menu.elements[0].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[0].options[i] = NULL;
+    }
+
+    Menu.elements[1].name = "Deauther";
+    Menu.elements[1].type = 1;
+    Menu.elements[1].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[1].options[i] = NULL;
+    }
+
+    drawMenu(Menu, Selector);
+
+    int UPp, DOWNp, SELECTp, RETURNp;
+
+    while (1) {
+        M5Cardputer.update();
+        if (M5Cardputer.Keyboard.isChange()) {
+            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
+            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
+//            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
+//            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
+            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
+            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
+
+            if (RETURNp) {
+                return 0;
+            }
+           else if (UPp) {
+                Selector = intChecker(Selector - 1, Menu.length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (DOWNp) {
+                Selector = intChecker(Selector + 1, Menu.length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            if (SELECTp) {
+                switch (Selector) {
+                    int ret;
+                    case 0:  // BeaconSpam
+                        M5GFX_clear_screen();
+                        printf ("beacon_spam_task - starting");
+                        ret = BeaconSpam();
+                        if (ret != 0) {
+                            printf("Error in app.");
+                        }
+                        break;
+                    case 1:  // Deauther
+                        M5GFX_clear_screen();
+                        ret = 0;
+                        if (ret != 0) {
+                            printf("Error in app.");
+                        }
+                        break;
+                }
+            }
+            drawMenu(Menu, Selector);
+        }
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
@@ -229,7 +339,7 @@ int APP_WiFcker() {
 
     ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(20));
 
-    int ret = sendBeaconTask();
+    int ret = menuTask();
 
     ESP_ERROR_CHECK(esp_wifi_set_promiscuous(false));
     ESP_ERROR_CHECK(esp_wifi_stop());
