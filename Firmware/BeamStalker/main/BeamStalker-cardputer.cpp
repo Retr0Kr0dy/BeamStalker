@@ -14,6 +14,7 @@ extern "C" {
 
 #include "firmware/helper.h"
 #include "firmware/bitmaps.h"
+#include "firmware/menu.h"
 
 #include "firmware/apps/Options.h"
 #include "firmware/apps/wifcker.h"
@@ -28,6 +29,13 @@ float charsize_multiplier = 0.5;
 int font_size = 18;
 int charsize = (int)(font_size*charsize_multiplier)+((40*18)/100);
 
+int LogError(const std::string& message) {
+    M5GFX_clear_screen();
+    M5GFX_display_text(0, 1 * charsize, message.c_str(), TFT_RED);
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    return 0;
+}
+
 void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *bitmap, uint32_t color) {
     for (int16_t i = 0; i < height; i++) {
         for (int16_t j = 0; j < width; j++) {
@@ -37,26 +45,18 @@ void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8
     }
 }
 
-int intChecker (int value, int lenght) {
+int intChecker(int value, int length) {
     while (value < 0) {
-        value += lenght;
+        value += length;
     }
-    while (value > lenght-1) {
-        value -= lenght;
+    while (value > length - 1) {
+        value -= length;
     }
-
     return value;
 }
 
-int LogError(const std::string& message) {
-    M5GFX_clear_screen();
-    M5GFX_display_text(0, 1 * charsize, message.c_str(), TFT_RED);
-    vTaskDelay(pdMS_TO_TICKS(5000));
-    return 0;
-}
-
 char *createHeaderLine(const char *menu_name) {
-    const int max_menu_name = 10 + 7 - 4;
+    const int max_menu_name = 10 + 7 - 6;
 
     static char final[50];
     char cropped_menu_name[max_menu_name + 1];
@@ -90,76 +90,122 @@ char *createHeaderLine(const char *menu_name) {
         snprintf(bat_percentage_str, sizeof(bat_percentage_str), "N/A");
     }
 
-    std::int16_t batteryVoltage = M5Cardputer.Power.getBatteryVoltage();
+    int16_t batteryVoltage = M5Cardputer.Power.getBatteryVoltage();
 
     char bat_voltage_str[12];
 
-    if (batteryVoltage >= 0.0 && batteryVoltage <= 10.0) {
-        snprintf(bat_voltage_str, sizeof(bat_voltage_str), "%" PRId16 "V", batteryVoltage);
+    if (batteryVoltage >= 0 && batteryVoltage <= 10000) {
+        float batVoltage = batteryVoltage / 1000.0f;
+        snprintf(bat_voltage_str, sizeof(bat_voltage_str), "%.1fV", (batVoltage));
     } else {
         snprintf(bat_voltage_str, sizeof(bat_voltage_str), "N/A");
     }
 
-
     snprintf(final, sizeof(final), "%-*s %s %s %s", max_menu_name, cropped_menu_name, is_charging_str, bat_percentage_str, bat_voltage_str);
-
     return final;
 }
 
-void drawMenu(const char* element[], int selector, int length, const char* menuName) {
-    int i2 = intChecker(selector - 1, length);
-    int i4 = intChecker(selector + 1, length);
-
-    char selected[strlen(element[selector]) + 3]; // +3 for '<', '>', and the null terminator
-    sprintf(selected, "<%s>", element[selector]);
-
+void drawMenu(struct menu Menu, int selector) {
     char fullMenuName[50];
-    sprintf(fullMenuName, "%s",createHeaderLine(menuName));
+    sprintf(fullMenuName, "%s",createHeaderLine(Menu.name));
 
     M5GFX_clear_screen();
 
     M5.Display.fillRect(0, 0, M5.Display.width(), charsize, TFT_CYAN);
     M5GFX_display_text(0, 0, fullMenuName, TFT_BLACK);
 
-    M5GFX_display_text(0, 1*charsize, element[i2], TFT_WHITE);
-    M5GFX_display_text(0, 2*charsize, selected, TFT_GREEN);
-    M5GFX_display_text(0, 3*charsize, element[i4], TFT_WHITE);
+    int j = 1;
+    char element_str[50];
+
+    for (int i = -3; i <= 3; i++) {
+        struct item element = Menu.elements[intChecker(selector+i, Menu.length)];
+
+        if (element.type == 0) {
+            snprintf (element_str, sizeof(element_str), "%s: %s", element.name, element.options[intChecker(element.selector, element.length)]);
+        } else if (element.type == 1) {
+            snprintf (element_str, sizeof(element_str), "%s",element.name);
+        }
+
+        if (i == 0) {
+            M5GFX_display_text(0, j*charsize, element_str, TFT_GREEN);
+        } else {
+            M5GFX_display_text(0, j*charsize, element_str, TFT_WHITE);
+        }
+        j++;
+    }
 }
 
 int mainTask() {
     vTaskDelay(pdMS_TO_TICKS(100));
 
     int MainMenuSelector = 0;
-    const char* MainMenuElements[] = {"WiFcker", "The Eye", "Options"};
-    int MainMenuLength = sizeof(MainMenuElements) / sizeof(MainMenuElements[0]);
-    const char* MainMenuName = "~/";
 
-    drawMenu(MainMenuElements, MainMenuSelector, MainMenuLength, MainMenuName);
+    struct menu MainMenu;
 
-    int UPp, DOWNp, SELECTp, RETURNp;
+    MainMenu.name = "~/";
+    MainMenu.length = 3;  // WiF, Eye, Opt
+    MainMenu.elements = new item[MainMenu.length];
+
+    MainMenu.elements[0].name = "WiFcker";
+    MainMenu.elements[0].type = 1;
+    MainMenu.elements[0].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        MainMenu.elements[0].options[i] = NULL;
+    }
+
+    MainMenu.elements[1].name = "The Eye";
+    MainMenu.elements[1].type = 0;
+    MainMenu.elements[1].length = 2;
+    MainMenu.elements[1].options[0] = "opt1";
+    MainMenu.elements[1].options[1] = "opt2";
+    MainMenu.elements[1].options[2] = NULL; // Terminate options explicitly
+
+
+    MainMenu.elements[2].name = "Options";
+    MainMenu.elements[2].type = 1;
+    MainMenu.elements[2].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        MainMenu.elements[2].options[i] = NULL;
+    }
+
+    drawMenu(MainMenu, MainMenuSelector);
+
+    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
 
     while (1) {
         M5Cardputer.update();
         if (M5Cardputer.Keyboard.isChange()) {
             UPp = M5Cardputer.Keyboard.isKeyPressed(';');
             DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
+            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
+            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
             SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
                 return 0;
             }
-
-            if (UPp) {
-                MainMenuSelector = intChecker(MainMenuSelector - 1, MainMenuLength);
+            else if (UPp) {
+                MainMenuSelector = intChecker(MainMenuSelector - 1, MainMenu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
             else if (DOWNp) {
-                MainMenuSelector = intChecker(MainMenuSelector + 1, MainMenuLength);
+                MainMenuSelector = intChecker(MainMenuSelector + 1, MainMenu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
+            else if (LEFTp && (MainMenu.elements[MainMenuSelector].type == 0)) {
+                MainMenu.elements[MainMenuSelector].selector = intChecker(MainMenu.elements[MainMenuSelector].selector - 1, MainMenu.elements[MainMenuSelector].length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (RIGHTp  && (MainMenu.elements[MainMenuSelector].type == 0)) {
+                MainMenu.elements[MainMenuSelector].selector = intChecker(MainMenu.elements[MainMenuSelector].selector + 1, MainMenu.elements[MainMenuSelector].length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+
+
             else if (SELECTp) {
                 vTaskDelay(pdMS_TO_TICKS(50));
+
                 switch (MainMenuSelector) {
                     int ret;
                     case 2:  // Options
@@ -177,16 +223,12 @@ int mainTask() {
                         }
                         break;
                 }
-                M5GFX_clear_screen();
             }
-            drawMenu(MainMenuElements, MainMenuSelector, MainMenuLength, MainMenuName);
+            drawMenu(MainMenu, MainMenuSelector);
         }
-
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
-
-
 
 extern "C" void app_main(void) {
     M5Cardputer.begin(true);
