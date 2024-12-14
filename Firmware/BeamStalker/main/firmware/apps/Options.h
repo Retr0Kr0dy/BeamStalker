@@ -18,21 +18,21 @@ int APP_Options() {
     Menu.length = 3;  // sysinfo, settings, develop
     Menu.elements = new item[Menu.length];
 
-    Menu.elements[0].name = "System Info";
+    strcpy(Menu.elements[0].name, "System Info");
     Menu.elements[0].type = 1;
     Menu.elements[0].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
         Menu.elements[0].options[i] = NULL;
     }
 
-    Menu.elements[1].name = "Settings";
+    strcpy(Menu.elements[1].name, "Settings");
     Menu.elements[1].type = 1;
     Menu.elements[1].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
         Menu.elements[1].options[i] = NULL;
     }
 
-    Menu.elements[2].name = "Developper";
+    strcpy(Menu.elements[2].name, "Developper");
     Menu.elements[2].type = 1;
     Menu.elements[2].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {

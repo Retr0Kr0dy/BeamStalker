@@ -157,17 +157,17 @@ int mainTask() {
     struct menu MainMenu;
 
     MainMenu.name = "~/";
-    MainMenu.length = 3;  // WiF, Eye, Opt
+    MainMenu.length = 3;  // WiF, TEST_ELM, Opt
     MainMenu.elements = new item[MainMenu.length];
 
-    MainMenu.elements[0].name = "WiFcker";
+    strcpy(MainMenu.elements[0].name, "WiFi");
     MainMenu.elements[0].type = 1;
     MainMenu.elements[0].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
         MainMenu.elements[0].options[i] = NULL;
     }
 
-    MainMenu.elements[1].name = "The Eye";
+    strcpy(MainMenu.elements[1].name, "TEST_ELM");
     MainMenu.elements[1].type = 0;
     MainMenu.elements[1].length = 2;
     MainMenu.elements[1].options[0] = "opt1";
@@ -175,7 +175,7 @@ int mainTask() {
     MainMenu.elements[1].options[2] = NULL; // Terminate options explicitly
 
 
-    MainMenu.elements[2].name = "Options";
+    strcpy(MainMenu.elements[2].name, "Options");
     MainMenu.elements[2].type = 1;
     MainMenu.elements[2].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
