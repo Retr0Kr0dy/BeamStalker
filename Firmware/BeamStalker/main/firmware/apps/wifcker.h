@@ -3,7 +3,6 @@
 
 #include <M5Cardputer.h>
 
-#include "firmware/menu.h"
 #include "firmware/includes/wifi.h"
 
 int charset;
@@ -113,6 +112,8 @@ void stop_pps_timer() {
 }
 
 int BeaconSpam() {
+    start_wifi(WIFI_MODE_STA, true);
+
     charset = 0;
 
     int Selector = 0;
@@ -155,6 +156,8 @@ int BeaconSpam() {
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                stop_wifi();
+
                 return 0;
             }
             else if (UPp) {
@@ -203,6 +206,8 @@ int BeaconSpam() {
 }
 
 int Deauther() {
+    start_wifi(WIFI_MODE_STA, true);
+
     int Selector = 0;
     struct menu Menu;
 
@@ -250,6 +255,8 @@ int Deauther() {
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                stop_wifi();
+
                 return 0;
             }
             else if (UPp) {
@@ -294,6 +301,10 @@ int Deauther() {
                         init_pps_timer();
                         vTaskDelay(pdMS_TO_TICKS(100));
                         M5Cardputer.update();
+
+                        stop_wifi();
+                        start_wifi(WIFI_MODE_AP, true);
+
                         int wait = 1;
                         while (wait) {
                             M5Cardputer.update();
@@ -306,23 +317,14 @@ int Deauther() {
 
                             for (int i = 0; i < aps_count; i ++) {
                                 trollDeauth(client, aps[i].address);
-
-                                uint8_t *mac_address;
-
-                                mac_address = aps[i].address;
-
-                                printf ("DEAUTH: ");
-                                printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
-                                       mac_address[0], mac_address[1], mac_address[2],
-                                       mac_address[3], mac_address[4], mac_address[5]);
-
-
-                                for (int i = 0; i < 10; i++) {
-                                    vTaskDelay(pdMS_TO_TICKS(0));  // Yield the processor for a short duration
-                                }
+                                vTaskDelay(pdMS_TO_TICKS(100));
                             }
                         }
                         stop_pps_timer();
+
+                        stop_wifi();
+                        start_wifi(WIFI_MODE_STA, true);
+
                         break;
                 }
             }
@@ -409,6 +411,9 @@ int menuTask() {
                         break;
                     case 2: // Scan Wifi
                         M5GFX_clear_screen();
+
+                        start_wifi(WIFI_MODE_STA, true);
+
                         M5GFX_display_text(0, 0, "Scanning...", TFT_WHITE);
                         int ap_count;
                         AP *ap_list = scan_wifi_ap(&ap_count);
@@ -424,6 +429,9 @@ int menuTask() {
                         } else {
                             M5.Display.printf("Wi-Fi AP scan failed.\n");
                         }
+
+                        stop_wifi();
+
                         int wait = 1;
                         while (wait) {
                             M5Cardputer.update();
@@ -442,20 +450,7 @@ int menuTask() {
 }
 
 int APP_WiFcker() {
-    wifi_init_config_t wifi_cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&wifi_cfg));
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_ERROR_CHECK(esp_wifi_set_channel(CHANNEL, WIFI_SECOND_CHAN_NONE));
-    ESP_ERROR_CHECK(esp_wifi_set_promiscuous(true));
-
-    ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(20));
-
     int ret = menuTask();
-
-    ESP_ERROR_CHECK(esp_wifi_set_promiscuous(false));
-    ESP_ERROR_CHECK(esp_wifi_stop());
-    ESP_ERROR_CHECK(esp_wifi_deinit());
 
     return ret;
 }

