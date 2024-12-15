@@ -36,3 +36,7 @@ idf.py build
 
 Can work with the [M5Launcher project](https://github.com/bmorcelli/M5Stick-Launcher)
 
+
+---
+*Made with fun by akpalanaza*
+
