@@ -1,14 +1,4 @@
-#ifndef OPTIONS_H
-#define OPTIONS_H
-
-#include <M5Cardputer.h>
-
-#include "firmware/menu.h"
-
-extern void M5GFX_display_text(int x, int y, const char* text, uint32_t color = TFT_WHITE);
-extern void M5GFX_clear_screen(uint32_t color = TFT_BLACK);
-extern void drawMenu(struct menu Menu, int selector);
-extern int intChecker(int value, int length);
+#include "options.h"
 
 int APP_Options() {
     int Selector = 0;
@@ -18,21 +8,21 @@ int APP_Options() {
     Menu.length = 3;  // sysinfo, settings, develop
     Menu.elements = new item[Menu.length];
 
-    Menu.elements[0].name = "System Info";
+    strcpy(Menu.elements[0].name, "System Info");
     Menu.elements[0].type = 1;
     Menu.elements[0].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
         Menu.elements[0].options[i] = NULL;
     }
 
-    Menu.elements[1].name = "Settings";
+    strcpy(Menu.elements[1].name, "Settings");
     Menu.elements[1].type = 1;
     Menu.elements[1].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
         Menu.elements[1].options[i] = NULL;
     }
 
-    Menu.elements[2].name = "Developper";
+    strcpy(Menu.elements[2].name, "Developper");
     Menu.elements[2].type = 1;
     Menu.elements[2].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
@@ -70,7 +60,7 @@ int APP_Options() {
                 switch (Selector) {
                     case 0:
                         M5GFX_display_text(0, 0, "Current Firmware:");
-                        M5GFX_display_text(0, 20, VERSION);  // Assuming `VERSION` is defined elsewhere
+                        M5GFX_display_text(0, 20, VERSION);
                         vTaskDelay(pdMS_TO_TICKS(200));
                         wait = 1;
                         while (wait) {
@@ -117,17 +107,3 @@ int APP_Options() {
         vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
-
-
-void M5GFX_display_text(int x, int y, const char* text, uint32_t color) {
-    M5.Display.setCursor(x, y);
-    M5.Display.setTextColor(color);
-    M5.Display.print(text);
-}
-
-void M5GFX_clear_screen(uint32_t color) {
-    M5.Display.fillScreen(color);
-}
-
-
-#endif
