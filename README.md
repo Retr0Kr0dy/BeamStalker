@@ -36,6 +36,8 @@ idf.py build
 
 Can work with the [M5Launcher project](https://github.com/bmorcelli/M5Stick-Launcher)
 
+> [!IMPORTANT]
+> Needed for the wsl bypass to work. ([See here](https://github.com/Retr0Kr0dy/esp-idf_wsl_bypass))
 
 ---
 *Made with fun by akpalanaza*
