@@ -5,10 +5,9 @@
 cmake_minimum_required(VERSION 3.5)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(BeamStalker-cardputer)
+project(BeamStalker)
 
 # Set the C++ standard for the entire project
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# idf_build_set_property(LDFLAGS "-Wl,--wrap=ieee80211_raw_frame_sanity_check" APPEND)
