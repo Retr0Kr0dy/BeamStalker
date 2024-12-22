@@ -4,6 +4,8 @@
 #include <M5Cardputer.h>
 
 #include "../../includes/wifi.h"
+#include "../../includes/wifi_sniffer.h"
+#include "../../menu.h"
 #include "beacon_spam.h"
 #include "deauther.h"
 

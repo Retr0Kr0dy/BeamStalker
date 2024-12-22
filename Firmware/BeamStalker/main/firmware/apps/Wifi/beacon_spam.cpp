@@ -122,7 +122,7 @@ int BeaconSpam() {
     int Selector = 0;
     struct menu Menu;
 
-    Menu.name = "~/WiFi/Beacon Spam";
+    Menu.name = "~/WiFi/Bcn Spm";
     Menu.length = 2;  // charset, statack
     Menu.elements = new item[Menu.length];
 

