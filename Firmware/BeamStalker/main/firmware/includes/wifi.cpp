@@ -95,7 +95,10 @@ AP* scan_wifi_ap(int *ap_count) {
 
 void generate_random_mac(uint8_t *mac_addr) {
     mac_addr[0] = 0x02;
-    for (int i = 1; i < 6; i++) {
+    mac_addr[1] = 0x13;
+    mac_addr[2] = 0x37;
+    
+    for (int i = 3; i < 6; i++) {
         mac_addr[i] = rand() % 256;
     }
 }
