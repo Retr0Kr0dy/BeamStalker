@@ -33,6 +33,8 @@ In menuconfig, we need to :
 
 - 8MB flash size (Main -> Serial flasher config)
 - Use custom partition.csv (Main -> Partition Table -> Partition Table)
+- Enable Bluetooth (Main -> Component config -> Bluetooth)
+- Enable BLE 4.2 features (Main -> Component config -> Bluetooth -> Bluedroid Options)
 
 Then you can build the project : 
 

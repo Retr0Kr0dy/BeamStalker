@@ -9,7 +9,7 @@
 #include "beacon_spam.h"
 #include "deauther.h"
 
-int menuTask();
+int wifiMenuTask();
 int APP_WiFcker();
 
 #endif

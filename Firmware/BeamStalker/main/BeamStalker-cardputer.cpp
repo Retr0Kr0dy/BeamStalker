@@ -18,6 +18,7 @@ extern "C" {
 
 #include "firmware/apps/options.h"
 #include "firmware/apps/Wifi/wifi_main.h"
+#include "firmware/apps/BLE/ble_main.h"
 
 #include "M5GFX.h"
 #include "M5Cardputer.h"
@@ -33,7 +34,7 @@ int mainTask() {
     struct menu MainMenu;
 
     MainMenu.name = "~/";
-    MainMenu.length = 3;  // WiF, TEST_ELM, Opt
+    MainMenu.length = 3;  // WiF, BLE, Opt
     MainMenu.elements = new item[MainMenu.length];
 
     strcpy(MainMenu.elements[0].name, "WiFi");
@@ -43,13 +44,12 @@ int mainTask() {
         MainMenu.elements[0].options[i] = NULL;
     }
 
-    strcpy(MainMenu.elements[1].name, "TEST_ELM");
-    MainMenu.elements[1].type = 0;
-    MainMenu.elements[1].length = 2;
-    MainMenu.elements[1].options[0] = "opt1";
-    MainMenu.elements[1].options[1] = "opt2";
-    MainMenu.elements[1].options[2] = NULL;
-
+    strcpy(MainMenu.elements[1].name, "BLE");
+    MainMenu.elements[1].type = 1;
+    MainMenu.elements[1].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        MainMenu.elements[1].options[i] = NULL;
+    }
 
     strcpy(MainMenu.elements[2].name, "Options");
     MainMenu.elements[2].type = 1;
@@ -98,16 +98,23 @@ int mainTask() {
 
                 switch (MainMenuSelector) {
                     int ret;
-                    case 2:  // Options
+                    case 0:  // WiFcker
                         M5GFX_clear_screen();
-                        ret = APP_Options();
+                        ret = APP_WiFcker();
                         if (ret != 0) {
                             printf("Error in app.");
                         }
                         break;
-                    case 0:  // WiFcker
+                    case 1:  // BLE
                         M5GFX_clear_screen();
-                        ret = APP_WiFcker();
+                        ret = APP_BLE();
+                        if (ret != 0) {
+                            printf("Error in app.");
+                        }
+                        break;
+                    case 2:  // Options
+                        M5GFX_clear_screen();
+                        ret = APP_Options();
                         if (ret != 0) {
                             printf("Error in app.");
                         }
@@ -139,9 +146,12 @@ extern "C" void app_main(void) {
 
     for (;;) {
         M5.Display.clear();
-        int16_t x = (M5.Display.width() - 128) / 2;
-        drawBitmap(x, 0, 128, 64, skullLogo, TFT_WHITE);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        // int16_t x = (M5.Display.width() - 128) / 2;
+        // drawBitmap(x, 0, 128, 64, skullLogo, TFT_WHITE);
+        int16_t x = ((M5.Display.width() - 120) / 4) * 3;
+        drawBitmap(x, 0, 120, 120, skully, TFT_WHITE);
+        
+        vTaskDelay(pdMS_TO_TICKS(200));
 
         M5.Display.setCursor(0, 70);
         M5.Display.print(name);

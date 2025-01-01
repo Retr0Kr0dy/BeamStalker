@@ -1,6 +1,6 @@
 #include "wifi_main.h"
 
-int menuTask() {
+int wifiMenuTask() {
     srand(time(NULL));
     int Selector = 0;
     struct menu Menu;
@@ -60,7 +60,7 @@ int menuTask() {
                     int ret;
                     case 0:  // BeaconSpam
                         M5GFX_clear_screen();
-                        printf ("beacon_spam_task - starting");
+                        printf ("beacon_spam_task - starting\n");
                         ret = BeaconSpam();
                         if (ret != 0) {
                             printf("Error in app.");
@@ -68,7 +68,7 @@ int menuTask() {
                         break;
                     case 1:  // Deauther
                         M5GFX_clear_screen();
-                        printf ("beacon_spam_task - starting");
+                        printf ("deauther_task - starting\n");
                         ret = Deauther();
                         if (ret != 0) {
                             printf("Error in app.");
@@ -115,7 +115,7 @@ int menuTask() {
 }
 
 int APP_WiFcker() {
-    int ret = menuTask();
+    int ret = wifiMenuTask();
 
     return ret;
 }
