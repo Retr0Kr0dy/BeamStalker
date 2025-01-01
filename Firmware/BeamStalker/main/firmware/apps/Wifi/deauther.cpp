@@ -156,7 +156,7 @@ int Deauther() {
                                 for (int j = 0; j < clients_count; j++) {
                                     trollDeauth(clients[j].mac , aps[i].address);                                            
                                     packet_count++;
-                                    vTaskDelay(pdMS_TO_TICKS(100));
+                                    vTaskDelay(pdMS_TO_TICKS(50));
                                 }
                             }
                         }
