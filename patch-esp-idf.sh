@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 # Check if ESP-IDF environment variables are set
 if [[ -z "$IDF_PATH" ]]; then
     echo "ESP-IDF is not set up. Please source the ESP-IDF export script (e.g., . ./export.sh)."
