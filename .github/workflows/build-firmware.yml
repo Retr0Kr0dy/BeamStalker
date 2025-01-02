@@ -18,6 +18,9 @@ jobs:
       with:
         submodules: 'recursive'
 
+    - name: Run esp-idf patch script
+      run: ./patch-esp-idf.sh
+
     - name: Build ESP-IDF Firmware
       uses: espressif/esp-idf-ci-action@v1
       with:
