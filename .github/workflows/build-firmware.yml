@@ -29,8 +29,6 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        name: ${{ github.event.pull_request.title }}
-        tag_name: ${{ github.event.pull_request.title }}
         fail_on_unmatched_files: true
         files: |
           Firmware/BeamStalker/build/BeamStalker-v*.bin
