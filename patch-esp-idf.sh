@@ -21,8 +21,8 @@ esp32s3_file_temp="$IDF_PATH/components/esp_wifi/lib/esp32s3/libnet80211_temp.a"
 #toolchain_esp32s3="$HOME/.espressif/tools/xtensa-esp32s3-elf/esp-2021r2-8.4.0/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-objcopy"
 
 # Find the objcopy tools dynamically
-toolchain_esp32=$(find "$HOME/" -type f -name "xtensa-esp32-elf-objcopy" | head -1)
-toolchain_esp32s3=$(find "$HOME/" -type f -name "xtensa-esp32s3-elf-objcopy" | head -1)
+toolchain_esp32=$(find "$HOME/" -type f -name "elf-objcopy" | head -1)
+toolchain_esp32s3=$(find "$HOME/" -type f -name "elf-objcopy" | head -1)
 
 # Verify the existence of the required library files
 if [[ -f "$esp32_file" && -f "$esp32s3_file" ]]; then
