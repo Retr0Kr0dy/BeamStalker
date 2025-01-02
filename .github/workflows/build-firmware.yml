@@ -21,6 +21,17 @@ jobs:
     - name: Build ESP-IDF Firmware
       uses: espressif/esp-idf-ci-action@v1
       with:
+        # command: /app/Retr0Kr0dy/BeamStalker/patch-esp-idf.sh && idf.py build
         esp_idf_version: v4.4
         target: esp32s3       # Currently we only build for M5Cardputer (so esp32s3)
         path: 'Firmware/BeamStalker'
+
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.build_firmware.outcome == 'success'
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ github.event.pull_request.title }}
+        tag_name: ${{ github.event.pull_request.title }}
+        fail_on_unmatched_files: true
+        files: |
+          Firmware/BeamStalker/build/BeamStalker-v*.bin
