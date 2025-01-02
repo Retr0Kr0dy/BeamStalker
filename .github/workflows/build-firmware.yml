@@ -21,7 +21,7 @@ jobs:
     - name: Build ESP-IDF Firmware
       uses: espressif/esp-idf-ci-action@v1
       with:
-        command: /app/Retr0Kr0dy/BeamStalker/patch-esp-idf.sh && idf.py build
+        # command: /app/Retr0Kr0dy/BeamStalker/patch-esp-idf.sh && idf.py build
         esp_idf_version: v4.4
         target: esp32s3       # Currently we only build for M5Cardputer (so esp32s3)
         path: 'Firmware/BeamStalker'
