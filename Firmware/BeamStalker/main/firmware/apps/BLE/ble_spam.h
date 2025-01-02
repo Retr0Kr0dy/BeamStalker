@@ -13,8 +13,12 @@
 
 #include "../../menu.h"
 
+#ifndef ESP_PWR_LVL_P21
+#define ESP_PWR_LVL_P21 ((esp_power_level_t)15) // as ESP_PWR_LVL_P21 is not defined in esp-idf v4.4 
+#endif
+
 #if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C2 || CONFIG_IDF_TARGET_ESP32S3
-#define MAX_TX_POWER ESP_PWR_LVL_N21
+#define MAX_TX_POWER ESP_PWR_LVL_P21
 #elif CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32C6
 #define MAX_TX_POWER ESP_PWR_LVL_P20
 #else
