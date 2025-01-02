@@ -26,9 +26,24 @@ jobs:
         target: esp32s3       # Currently we only build for M5Cardputer (so esp32s3)
         path: 'Firmware/BeamStalker'
 
+    - name: Set name and tag_name
+      id: set_name
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.title }}" ]]; then
+          echo "name=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+          echo "tag_name=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+        elif [[ -n "${{ github.event.head_commit.message }}" ]]; then
+          echo "name=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+          echo "tag_name=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+        else
+          echo "name=default-release-name" >> $GITHUB_ENV
+          echo "tag_name=default-release-tag" >> $GITHUB_ENV
+        fi
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
+        name: ${{ env.name }}
+        tag_name: ${{ env.tag_name }}
         fail_on_unmatched_files: true
         files: |
           Firmware/BeamStalker/build/BeamStalker-v*.bin
