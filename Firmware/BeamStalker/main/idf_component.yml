@@ -1,5 +1,5 @@
 dependencies:
-  m5stack/m5unified: "*"
+  m5stack/m5unified: ">=0.1.17"
 
   idf:
     version: ">=4.1.0"
