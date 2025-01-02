@@ -1,9 +1,0 @@
-[submodule "Firmware/BeamStalker/components/M5Cardputer"]
-	path = Firmware/BeamStalker/components/M5Cardputer
-	url = https://github.com/Retr0Kr0dy/M5Cardputer
-[submodule "Firmware/BeamStalker/components/M5GFX"]
-	path = Firmware/BeamStalker/components/M5GFX
-	url = https://github.com/m5stack/M5GFX
-[submodule "Firmware/BeamStalker/components/M5Unified"]
-	path = Firmware/BeamStalker/components/M5Unified
-	url = https://github.com/m5stack/M5Unified
