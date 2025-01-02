@@ -1,0 +1,26 @@
+name: Build Firmware
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+
+    - name: Build ESP-IDF Firmware
+      uses: espressif/esp-idf-ci-action@v1
+      with:
+        esp_idf_version: v4.4
+        target: esp32s3       # Currently we only build for M5Cardputer (so esp32s3)
+        path: 'Firmwares/BeamStalker'
