@@ -27,7 +27,6 @@ jobs:
         path: 'Firmware/BeamStalker'
 
     - name: Create Release
-      if: github.event.pull_request.merged == true
       uses: softprops/action-gh-release@v1
       with:
         name: ${{ github.event.pull_request.title }}
