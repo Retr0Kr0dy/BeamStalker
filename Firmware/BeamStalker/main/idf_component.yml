@@ -1,0 +1,5 @@
+dependencies:
+  m5stack/m5unified: "*"
+
+  idf:
+    version: ">=4.1.0"
