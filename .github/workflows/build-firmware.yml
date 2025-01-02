@@ -32,9 +32,9 @@ jobs:
         if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.title }}" ]]; then
           echo "name=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
           echo "tag_name=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
-        elif [[ -n "${{ github.event.head_commit.message }}" ]]; then
-          echo "name=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
-          echo "tag_name=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+        elif [[ -n "${{ github.event.head_commit.title }}" ]]; then
+          echo "name=${{ github.event.head_commit.title }}" >> $GITHUB_ENV
+          echo "tag_name=${{ github.event.head_commit.title }}" >> $GITHUB_ENV
         else
           echo "name=default-release-name" >> $GITHUB_ENV
           echo "tag_name=default-release-tag" >> $GITHUB_ENV
