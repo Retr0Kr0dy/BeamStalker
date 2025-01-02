@@ -23,4 +23,4 @@ jobs:
       with:
         esp_idf_version: v4.4
         target: esp32s3       # Currently we only build for M5Cardputer (so esp32s3)
-        path: 'Firmwares/BeamStalker'
+        path: 'Firmware/BeamStalker'
