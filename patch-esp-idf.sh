@@ -9,6 +9,8 @@ if [[ -z "$IDF_PATH" ]]; then
     exit 1
 fi
 
+
+
 # Define paths for the required libraries and tools
 esp32_file="$IDF_PATH/components/esp_wifi/lib/esp32/libnet80211.a"
 esp32s3_file="$IDF_PATH/components/esp_wifi/lib/esp32s3/libnet80211.a"
@@ -16,13 +18,13 @@ esp32s3_file="$IDF_PATH/components/esp_wifi/lib/esp32s3/libnet80211.a"
 esp32_file_temp="$IDF_PATH/components/esp_wifi/lib/esp32/libnet80211_temp.a"
 esp32s3_file_temp="$IDF_PATH/components/esp_wifi/lib/esp32s3/libnet80211_temp.a"
 
-# Define paths for the objcopy tools (ensure ESP-IDF toolchain is set up)
-#toolchain_esp32="$HOME/.espressif/tools/xtensa-esp32-elf/esp-2021r2-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-objcopy"
-#toolchain_esp32s3="$HOME/.espressif/tools/xtensa-esp32s3-elf/esp-2021r2-8.4.0/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-objcopy"
-
 # Find the objcopy tools dynamically
-toolchain_esp32=$(find "$HOME/" -type f -name "elf-objcopy" | head -1)
-toolchain_esp32s3=$(find "$HOME/" -type f -name "elf-objcopy" | head -1)
+
+# Use $IDF_TOOLS_PATH if defined, otherwise fall back to $HOME/.espressif/tools
+tools_path="${IDF_TOOLS_PATH:-$HOME/.espressif}/tools"
+
+toolchain_esp32=$(find "$tools_path" -type f -name "xtensa-esp32-elf-objcopy" | head -n 1)
+toolchain_esp32s3=$(find "$tools_path" -type f -name "xtensa-esp32s3-elf-objcopy" | head -n 1)
 
 # Verify the existence of the required library files
 if [[ -f "$esp32_file" && -f "$esp32s3_file" ]]; then
