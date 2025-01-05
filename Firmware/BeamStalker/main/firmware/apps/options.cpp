@@ -35,7 +35,7 @@ int APP_Options() {
 
     while (1) {
         M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isChange()) {
+        if (M5Cardputer.Keyboard.isPressed()) {
             UPp = M5Cardputer.Keyboard.isKeyPressed(';');
             DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
 //            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');

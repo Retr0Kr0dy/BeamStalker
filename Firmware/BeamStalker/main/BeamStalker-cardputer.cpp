@@ -64,7 +64,7 @@ int mainTask() {
 
     while (1) {
         M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isChange()) {
+        if (M5Cardputer.Keyboard.isPressed()) {
             UPp = M5Cardputer.Keyboard.isKeyPressed(';');
             DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
             LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
@@ -167,7 +167,7 @@ extern "C" void app_main(void) {
 
         while (loop) {
             M5Cardputer.update();
-            if (M5Cardputer.Keyboard.isChange()) {
+            if (M5Cardputer.Keyboard.isPressed()) {
                 int wait = 1;
                 while (wait) {
                     M5Cardputer.update();

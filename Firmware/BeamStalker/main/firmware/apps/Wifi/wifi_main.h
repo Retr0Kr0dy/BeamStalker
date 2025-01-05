@@ -6,6 +6,8 @@
 #include "../../includes/wifi.h"
 #include "../../includes/wifi_sniffer.h"
 #include "../../menu.h"
+
+#include "app_wifi_sniffer.h"
 #include "beacon_spam.h"
 #include "deauther.h"
 

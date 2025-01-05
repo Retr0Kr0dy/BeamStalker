@@ -54,17 +54,46 @@ void add_ap_if_new(const uint8_t *ap_mac) {
     }
 }
 
+void sniffer_log(const wifi_ieee80211_mac_hdr_t *hdr) {
+    printf("frame_ctrl: %04x, duration_id: %u, "
+        "addr1: %02x:%02x:%02x:%02x:%02x:%02x, "
+        "addr2: %02x:%02x:%02x:%02x:%02x:%02x, "
+        "addr3: %02x:%02x:%02x:%02x:%02x:%02x, "
+        "sequence_ctrl: %u, "
+        "addr4: %02x:%02x:%02x:%02x:%02x:%02x\n",
+        hdr->frame_ctrl,
+        hdr->duration_id,
+        hdr->addr1[0], hdr->addr1[1], hdr->addr1[2], hdr->addr1[3], hdr->addr1[4], hdr->addr1[5],
+        hdr->addr2[0], hdr->addr2[1], hdr->addr2[2], hdr->addr2[3], hdr->addr2[4], hdr->addr2[5],
+        hdr->addr3[0], hdr->addr3[1], hdr->addr3[2], hdr->addr3[3], hdr->addr3[4], hdr->addr3[5],
+        hdr->sequence_ctrl,
+        hdr->addr4[0], hdr->addr4[1], hdr->addr4[2], hdr->addr4[3], hdr->addr4[4], hdr->addr4[5]);
+
+}
+
 void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type) {
     const wifi_promiscuous_pkt_t *ppkt = (wifi_promiscuous_pkt_t *)buff;
     const wifi_ieee80211_packet_t *ipkt = (wifi_ieee80211_packet_t *)ppkt->payload;
     const wifi_ieee80211_mac_hdr_t *hdr = &ipkt->hdr;
     uint16_t fc = hdr->frame_ctrl;
 
-//    uint8_t frame_category = (fc & 0x000C) >> 2;
+    uint8_t frame_category = (fc & 0x000C) >> 2;
     uint8_t frame_action = (fc & 0x00F0) >> 4;
 
+    if (sniffer_verbose) {
+        if (selected_t_filter == NULL) {
+            sniffer_log(hdr);
+        } else {
+            for (int i = 0; i < selected_t_filter_count; i ++) {
+                if (fc == selected_t_filter[i]) {
+                    sniffer_log(hdr);
+                }
+            }
+        }
+    }
+    
     // Check for Beacon Frames (AP identification)
-    if (frame_action == 0x08) {
+    if (frame_category == 0x00 && frame_action == 0x08) {
         if (is_broadcast(hdr->addr1)) {
             add_ap_if_new(hdr->addr2); // addr2 is the BSSID (AP MAC)
         }
@@ -110,20 +139,35 @@ void wifi_sniffer_set_channel(uint8_t channel) {
     esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
 }
 
-int sniff(int duration) {
+int sniff(int duration, uint16_t *type_filter, int verbose) {
+    selected_t_filter = type_filter;
+    sniffer_verbose = verbose;
+
     stop_wifi();
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(500));
     wifi_sniffer_init();
     time_t start_time = time(NULL);
     time_t end_time = start_time + duration;
 
     while (time(NULL) < end_time) {
+        if (verbose == 1) { // if using wifi sniffer app, need to catch key press for exit
+            M5Cardputer.update();
+            if (M5Cardputer.Keyboard.isPressed()) {
+                break;
+            }
+        }    
         wifi_sniffer_set_channel(channel);
         channel = (channel % WIFI_CHANNEL_MAX) + 1;
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
+
     stop_wifi();
+    vTaskDelay(pdMS_TO_TICKS(100));
     start_wifi(WIFI_MODE_STA, true);
+
+    if (verbose) {
+        sniffer_verbose = 0;
+    }
 
     return 0;
 }
@@ -155,8 +199,10 @@ mac_addr_t* getSelectedClients(menu Menu, ap_info_t* ap_info, int* selected_coun
     return selected_clients;
 }
 
+
+
 mac_addr_t* select_client_menu(int *selected_client_count, AP* aps, int aps_count) {
-    sniff(10);
+    sniff(10, NULL, 0);
     int length = 0;
     for (int i = 0; i < sniff_ap_count; i++) {
         if (mac_equals(sniff_ap_list[i].ap_mac.mac, aps->address)) {
@@ -224,7 +270,7 @@ mac_addr_t* select_client_menu(int *selected_client_count, AP* aps, int aps_coun
 
     while (1) {
         M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isChange()) {
+        if (M5Cardputer.Keyboard.isPressed()) {
             UPp = M5Cardputer.Keyboard.isKeyPressed(';');
             DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
             LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
@@ -256,6 +302,120 @@ mac_addr_t* select_client_menu(int *selected_client_count, AP* aps, int aps_coun
                     mac_addr_t* selected_clients = getSelectedClients(Menu, sniff_ap_list, selected_client_count);
 
                     return selected_clients;
+                }
+            }
+            drawMenu(Menu, Selector);
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+uint16_t* getSelectedFilter(menu Menu, uint16_t* filter, int* selected_count) {
+    uint16_t* selected_filter = (uint16_t*)malloc(Menu.length * sizeof(uint16_t));
+    if (!selected_filter) {
+        printf("Memory allocation failed for selected Filter.\n");
+        return NULL;
+    }
+
+    int count = 0;
+
+
+    if (Menu.elements[0].options[Menu.elements[0].selector][0] == 'x') {
+        for (int i = 0; i < t_filter_count; i++) {
+            selected_filter[i] = t_filter[i];
+        }
+    } else {
+        for (int i = 0; i < Menu.length - 1; i++) {
+            if (Menu.elements[i].options[Menu.elements[i].selector][0] == 'x') {
+                memcpy(&selected_filter[count], &filter[i-1], sizeof(uint16_t));
+                count++;
+            }
+        }
+    }
+
+    selected_filter = (uint16_t*)realloc(selected_filter, count * sizeof(uint16_t));
+
+    *selected_count = count;
+    return selected_filter;
+}
+
+uint16_t* select_filter_menu(int *selected_filter_count, uint16_t *filters, int filter_count) {
+    int itemCount = 0;
+    int Selector = 0;
+    menu Menu;
+    Menu.name = "Filter Select";
+    Menu.length = t_filter_count + 1 + 1; // all, Select
+    Menu.elements = (item *)malloc(Menu.length * sizeof(item));
+
+    strcpy(Menu.elements[0].name, "all");
+    Menu.elements[0].type = 0;
+    Menu.elements[0].length = 2;
+    Menu.elements[0].selector = 0;
+    Menu.elements[0].options[0] = " ";
+    Menu.elements[0].options[1] = "x";
+    Menu.elements[0].options[2] = NULL;
+
+    itemCount++;
+
+    for (int i = 0; i < filter_count; i++) {
+        snprintf(Menu.elements[itemCount].name, sizeof(Menu.elements[itemCount].name), "%04x", filters[i]);
+        Menu.elements[itemCount].type = 0;
+        Menu.elements[itemCount].length = 2;
+        Menu.elements[itemCount].selector = 0;
+        Menu.elements[itemCount].options[0] = " ";
+        Menu.elements[itemCount].options[1] = "x";
+        Menu.elements[itemCount].options[2] = NULL;
+
+        itemCount++;
+    }
+
+    strcpy(Menu.elements[Menu.length-1].name, "Select");
+    Menu.elements[Menu.length-1].type = 1;
+    Menu.elements[Menu.length-1].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[Menu.length-1].options[i] = NULL;
+    }
+
+    drawMenu(Menu, Selector);
+
+    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
+
+    while (1) {
+        M5Cardputer.update();
+        if (M5Cardputer.Keyboard.isPressed()) {
+            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
+            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
+            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
+            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
+            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
+            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
+
+            if (RETURNp) {
+                return 0;
+            }
+           else if (UPp) {
+                Selector = intChecker(Selector - 1, Menu.length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (DOWNp) {
+                Selector = intChecker(Selector + 1, Menu.length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (LEFTp && (Menu.elements[Selector].type == 0)) {
+                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (RIGHTp  && (Menu.elements[Selector].type == 0)) {
+                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            if (SELECTp) {
+                if (Selector == (Menu.length - 1)) {  // Select
+                    uint16_t* selected_filters = getSelectedFilter(Menu, filters, selected_filter_count);
+
+                    selected_t_filter_count = *selected_filter_count;
+
+                    return selected_filters;
                 }
             }
             drawMenu(Menu, Selector);
