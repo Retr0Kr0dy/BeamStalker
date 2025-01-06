@@ -1,5 +1,36 @@
 #include "wifi_sniffer.h"
 
+void sniff_pps_timer_callback(TimerHandle_t xTimer) {
+    char pc_buffer[32];
+    snprintf(pc_buffer, sizeof(pc_buffer), "Packet: %d", sniff_packet_count);
+    char ch_buffer[32];
+    snprintf(ch_buffer, sizeof(ch_buffer), "Channel: %d", channel);
+
+    M5.Display.clear();
+    M5GFX_display_text(0, 0*charsize, "Sniffing for 1000s", TFT_WHITE);
+    M5GFX_display_text(0, 2*charsize, pc_buffer, TFT_WHITE);
+    M5GFX_display_text(0, 3*charsize, ch_buffer, TFT_WHITE);
+    M5GFX_display_text(0, 7*charsize, "Press any key to exit...", TFT_WHITE);
+}
+
+void init_sniff_pps_timer() {
+    sniff_packet_count = 0;
+    pps_timer = xTimerCreate("PPS_Timer", pdMS_TO_TICKS(1000), pdTRUE, (void *)0, sniff_pps_timer_callback);
+    if (pps_timer == NULL) {
+        printf("Failed to create timer\n");
+    } else {
+        xTimerStart(pps_timer, 0);
+    }
+}
+
+void stop_sniff_pps_timer() {
+    if (pps_timer != NULL) {
+        xTimerStop(pps_timer, 0);
+        xTimerDelete(pps_timer, 0);
+        pps_timer = NULL;
+    }
+}
+
 bool mac_equals(const uint8_t *mac1, const uint8_t *mac2) {
     for (int i = 0; i < 6; i++) {
         if (mac1[i] != mac2[i]) {
@@ -55,6 +86,8 @@ void add_ap_if_new(const uint8_t *ap_mac) {
 }
 
 void sniffer_log(const wifi_ieee80211_mac_hdr_t *hdr) {
+    sniff_packet_count++;
+
     printf("frame_ctrl: %04x, duration_id: %u, "
         "addr1: %02x:%02x:%02x:%02x:%02x:%02x, "
         "addr2: %02x:%02x:%02x:%02x:%02x:%02x, "
@@ -199,8 +232,6 @@ mac_addr_t* getSelectedClients(menu Menu, ap_info_t* ap_info, int* selected_coun
     return selected_clients;
 }
 
-
-
 mac_addr_t* select_client_menu(int *selected_client_count, AP* aps, int aps_count) {
     sniff(10, NULL, 0);
     int length = 0;
@@ -279,6 +310,7 @@ mac_addr_t* select_client_menu(int *selected_client_count, AP* aps, int aps_coun
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
            else if (UPp) {
@@ -298,6 +330,7 @@ mac_addr_t* select_client_menu(int *selected_client_count, AP* aps, int aps_coun
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
             if (SELECTp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 if (Selector == (Menu.length - 1)) {  // Select
                     mac_addr_t* selected_clients = getSelectedClients(Menu, sniff_ap_list, selected_client_count);
 
@@ -391,6 +424,7 @@ uint16_t* select_filter_menu(int *selected_filter_count, uint16_t *filters, int 
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
            else if (UPp) {
@@ -410,6 +444,7 @@ uint16_t* select_filter_menu(int *selected_filter_count, uint16_t *filters, int 
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
             if (SELECTp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 if (Selector == (Menu.length - 1)) {  // Select
                     uint16_t* selected_filters = getSelectedFilter(Menu, filters, selected_filter_count);
 

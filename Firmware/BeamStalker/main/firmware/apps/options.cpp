@@ -44,6 +44,7 @@ int APP_Options() {
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
             else if (UPp) {
@@ -56,6 +57,7 @@ int APP_Options() {
             }
             if (SELECTp) {
                 M5GFX_clear_screen();
+                vTaskDelay(pdMS_TO_TICKS(300));
                 int wait = 1;
                 switch (Selector) {
                     case 0:

@@ -6,7 +6,7 @@ int App_Wifi_Sniffer() {
     int Selector = 0;
     struct menu Menu;
 
-    Menu.name = "~/WiFi/Wifi sniffer";
+    Menu.name = "~/WiFi/WifiSniffer";
     Menu.length = 2;  // filter, statasniffing
     Menu.elements = new item[Menu.length];
 
@@ -42,6 +42,7 @@ int App_Wifi_Sniffer() {
 
             if (RETURNp) {
                 stop_wifi();
+                vTaskDelay(pdMS_TO_TICKS(300));
 
                 return 0;
             }
@@ -62,7 +63,9 @@ int App_Wifi_Sniffer() {
             //     vTaskDelay(pdMS_TO_TICKS(50));
             // }
             if (SELECTp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 M5GFX_clear_screen();
+
                 switch (Selector) {
                     case 0: //filter
                         filters = select_filter_menu(&filter_count, t_filter, t_filter_count);
@@ -70,9 +73,9 @@ int App_Wifi_Sniffer() {
                         break;
                     case 1: // Start sniffing
                         vTaskDelay(pdMS_TO_TICKS(100));
-                        
-                        M5GFX_display_text(0, 0, "Sniffing for 60s !\nPress any key to exit...", TFT_WHITE);
-                        sniff(60, filters, 1);
+                        init_sniff_pps_timer();
+                        sniff(1000, filters, 1);
+                        stop_sniff_pps_timer();
                         break;
                 }
             }

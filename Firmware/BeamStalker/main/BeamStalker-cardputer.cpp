@@ -73,6 +73,7 @@ int mainTask() {
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
             else if (UPp) {
@@ -94,8 +95,7 @@ int mainTask() {
 
 
             else if (SELECTp) {
-                vTaskDelay(pdMS_TO_TICKS(50));
-
+                vTaskDelay(pdMS_TO_TICKS(300));
                 switch (MainMenuSelector) {
                     int ret;
                     case 0:  // WiFcker

@@ -122,7 +122,7 @@ int BeaconSpam() {
     int Selector = 0;
     struct menu Menu;
 
-    Menu.name = "~/WiFi/Bcn Spm";
+    Menu.name = "~/WiFi/BcnSpm";
     Menu.length = 2;  // charset, statack
     Menu.elements = new item[Menu.length];
 
@@ -160,6 +160,7 @@ int BeaconSpam() {
 
             if (RETURNp) {
                 stop_wifi();
+                vTaskDelay(pdMS_TO_TICKS(300));
 
                 return 0;
             }
@@ -180,7 +181,9 @@ int BeaconSpam() {
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
             if (SELECTp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 M5GFX_clear_screen();
+                
                 switch (Selector) {
                     case 1: // Start attack
                         init_pps_timer();
@@ -199,6 +202,7 @@ int BeaconSpam() {
                             }
                         }
                         stop_pps_timer();
+                        vTaskDelay(pdMS_TO_TICKS(300));
                         break;
                 }
             }

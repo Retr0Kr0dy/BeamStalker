@@ -174,6 +174,7 @@ AP* select_wifi_menu(int *selected_ap_count) {
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
            else if (UPp) {
@@ -193,6 +194,7 @@ AP* select_wifi_menu(int *selected_ap_count) {
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
             if (SELECTp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 if (Selector == (Menu.length - 1)) {  // Select
                     for (int i = 0; i < ap_count; i++) {
                         AP* selected_aps = getSelectedAPs(Menu, ap_info_list, selected_ap_count);
