@@ -132,7 +132,7 @@ int BLESpam() {
     int Selector = 0;
     struct menu Menu;
 
-    Menu.name = "~/WiFi/BLE Spm";
+    Menu.name = "~/BLE/BleSpm";
     Menu.length = 2;  // devices, statack
     Menu.elements = new item[Menu.length];
 
@@ -176,6 +176,9 @@ int BLESpam() {
                 ESP_ERROR_CHECK(esp_bt_controller_disable());
                 ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
 /* END */
+
+                vTaskDelay(pdMS_TO_TICKS(300));
+
                 return 0;
             }
             else if (UPp) {
@@ -195,6 +198,7 @@ int BLESpam() {
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
             if (SELECTp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 M5GFX_clear_screen();
                 switch (Selector) {
                     case 1: // Start attack
@@ -220,6 +224,7 @@ int BLESpam() {
                             vTaskDelay(pdMS_TO_TICKS(delayMilliseconds));
                             esp_ble_gap_stop_advertising();
                         }
+                        vTaskDelay(pdMS_TO_TICKS(300));
                         break;
                 }
             }

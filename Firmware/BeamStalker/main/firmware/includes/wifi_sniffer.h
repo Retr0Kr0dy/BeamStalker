@@ -32,6 +32,7 @@ uint16_t *selected_t_filter = NULL;
 int selected_t_filter_count;
 
 int sniffer_verbose = 0;
+int sniff_packet_count;
 
 typedef struct {
     uint8_t mac[6];
@@ -61,6 +62,9 @@ typedef struct {
     uint8_t payload[0];
 } wifi_ieee80211_packet_t;
 
+void sniff_pps_timer_callback(TimerHandle_t xTimer);
+void init_sniff_pps_timer();
+void stop_sniff_pps_timer();
 bool mac_equals(const uint8_t *mac1, const uint8_t *mac2);
 bool is_broadcast(const uint8_t *mac);
 void add_client_to_ap(const uint8_t *ap_mac, const uint8_t *client_mac);

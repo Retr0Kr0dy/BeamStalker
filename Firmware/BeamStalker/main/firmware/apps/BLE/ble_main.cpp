@@ -30,6 +30,7 @@ int bleMenuTask() {
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
            else if (UPp) {
@@ -41,10 +42,11 @@ int bleMenuTask() {
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
             if (SELECTp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
+
                 switch (Selector) {
                     int ret;
                     case 0:  // BLESpam
-                        M5GFX_clear_screen();
                         printf ("ble_spam_task - starting\n");
                         ret = BLESpam();
                         if (ret != 0) {

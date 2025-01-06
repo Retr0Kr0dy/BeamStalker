@@ -45,6 +45,7 @@ int wifiMenuTask() {
             RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
 
             if (RETURNp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
            else if (UPp) {
@@ -56,10 +57,10 @@ int wifiMenuTask() {
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
             if (SELECTp) {
+                vTaskDelay(pdMS_TO_TICKS(300));
                 switch (Selector) {
                     int ret;
                     case 0:  // BeaconSpam
-                        M5GFX_clear_screen();
                         printf ("beacon_spam_task - starting\n");
                         ret = BeaconSpam();
                         if (ret != 0) {
@@ -67,7 +68,6 @@ int wifiMenuTask() {
                         }
                         break;
                     case 1:  // Deauther
-                        M5GFX_clear_screen();
                         printf ("deauther_task - starting\n");
                         ret = Deauther();
                         if (ret != 0) {
@@ -75,7 +75,6 @@ int wifiMenuTask() {
                         }
                         break;
                     case 2: // Sniff Wifi
-                        M5GFX_clear_screen();
                         printf ("wifi_sniffer_task - starting\n");
                         ret = App_Wifi_Sniffer();
                         if (ret != 0) {

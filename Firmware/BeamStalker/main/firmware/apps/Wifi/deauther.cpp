@@ -71,6 +71,7 @@ int Deauther() {
 
             if (RETURNp) {
                 stop_wifi();
+                vTaskDelay(pdMS_TO_TICKS(300));
 
                 return 0;
             }
@@ -92,6 +93,8 @@ int Deauther() {
             }
             if (SELECTp) {
                 M5GFX_clear_screen();
+                vTaskDelay(pdMS_TO_TICKS(300));
+                
                 switch (Selector) {
                     case 0: // Select AP
                         M5GFX_display_text(0, 0, "Scanning...\r", TFT_WHITE);
@@ -164,6 +167,7 @@ int Deauther() {
 
                         stop_wifi();
                         start_wifi(WIFI_MODE_STA, true);
+                        vTaskDelay(pdMS_TO_TICKS(300));
 
                         break;
                 }
