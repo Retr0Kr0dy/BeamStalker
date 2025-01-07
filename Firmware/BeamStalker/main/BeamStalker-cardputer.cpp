@@ -20,11 +20,6 @@ extern "C" {
 #include "firmware/apps/Wifi/wifi_main.h"
 #include "firmware/apps/BLE/ble_main.h"
 
-#include "M5Cardputer.h"
-
-M5GFX display;
-M5Canvas canvas(&display);
-
 int mainTask() {
     vTaskDelay(pdMS_TO_TICKS(100));
 
@@ -118,8 +113,10 @@ int mainTask() {
 }
 
 extern "C" void app_main(void) {
+    #ifdef CONFIG_M5_BOARD
     M5Cardputer.begin(true);
     M5.Power.begin();
+    #endif
 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -141,10 +138,12 @@ extern "C" void app_main(void) {
         
         vTaskDelay(pdMS_TO_TICKS(200));
 
+        #ifdef CONFIG_M5_BOARD
         M5.Display.setCursor(0, 70);
         M5.Display.print(name);
         M5.Display.setCursor(0, 90);
         M5.Display.print(VERSION);
+        #endif
 
         printf("%s %s\n", name, VERSION);
 

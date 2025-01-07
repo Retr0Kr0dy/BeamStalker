@@ -121,30 +121,46 @@ void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8
 }
 
 bool upPressed() {
+    #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed(';');
+    #endif
 }
 bool downPressed() {
+    #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed('.');
+    #endif
 }
 bool leftPressed() {
+    #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed(',');
+    #endif
 }
 bool rightPressed() {
+    #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed('/');
+    #endif
 }
 bool selectPressed() {
+    #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
+    #endif
 }
 bool returnPressed() {
+    #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed('`');
+    #endif
 }
 
 bool anyPressed() {
+    #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isPressed();
+    #endif
 }
 
 void updateBoard() {
+    #ifdef CONFIG_M5_BOARD
     M5Cardputer.update();
+    #endif
 }
 
 void displayText(int x, int y, const char* text, uint32_t color) {

@@ -31,6 +31,8 @@ void drawMenu(struct menu Menu, int selector);
 int LogError(const std::string& message);
 void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *bitmap, uint32_t color);
 
+/* Future interface.cpp */
+
 bool upPressed();
 bool downPressed();
 bool leftPressed();
@@ -43,5 +45,11 @@ void updateBoard();
 
 void displayText(int x, int y, const char* text, uint32_t color = TFT_WHITE);
 void clearScreen(uint32_t color = TFT_BLACK);
+
+#ifdef CONFIG_M5_BOARD
+M5GFX display;
+M5Canvas canvas(&display);
+#endif
+
 
 #endif

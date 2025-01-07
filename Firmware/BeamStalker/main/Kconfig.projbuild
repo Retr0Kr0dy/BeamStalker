@@ -1,0 +1,9 @@
+menu "BeamStalker Build Configuration"
+
+config M5_BOARD
+    bool "is M5Stack hardware"
+    default n
+    help
+        Specify if board is using M5Stack libs.
+
+endmenu
