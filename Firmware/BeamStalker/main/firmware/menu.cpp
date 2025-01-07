@@ -62,10 +62,10 @@ void drawMenu(struct menu Menu, int selector) {
     char fullMenuName[50];
     sprintf(fullMenuName, "%s",createHeaderLine(Menu.name));
 
-    M5GFX_clear_screen();
+    clearScreen();
 
     M5.Display.fillRect(0, 0, M5.Display.width(), charsize, TFT_CYAN);
-    M5GFX_display_text(0, 0, fullMenuName, TFT_BLACK);
+    displayText(0, 0, fullMenuName, TFT_BLACK);
 
     int j = 1;
     char element_str[50];
@@ -96,31 +96,17 @@ void drawMenu(struct menu Menu, int selector) {
         }
 
         if (i == 0) {
-            M5GFX_display_text(0, j*charsize, element_str, TFT_GREEN);
+            displayText(0, j*charsize, element_str, TFT_GREEN);
         } else {
-            M5GFX_display_text(0, j*charsize, element_str, TFT_WHITE);
+            displayText(0, j*charsize, element_str, TFT_WHITE);
         }
         j++;
     }
 }
 
-void M5GFX_display_text(int x, int y, const char* text, uint32_t color) {
-    M5.Display.setCursor(x, y);
-    M5.Display.setTextColor(color);
-    M5.Display.print(text);
-}
-/*
-void M5GFX_clear_screen(uint32_t color) {
-    M5.Display.fillScreen(color);
-}
-*/
-void M5GFX_clear_screen(uint32_t color) {
-    M5.Display.fillScreen(color);
-}
-
 int LogError(const std::string& message) {
-    M5GFX_clear_screen();
-    M5GFX_display_text(0, 1 * charsize, message.c_str(), TFT_RED);
+    clearScreen();
+    displayText(0, 1 * charsize, message.c_str(), TFT_RED);
     vTaskDelay(pdMS_TO_TICKS(5000));
     return 0;
 }
@@ -132,4 +118,41 @@ void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8
             M5.Display.drawPixel(x + j, y + i, bit ? color : TFT_BLACK);
         }
     }
+}
+
+bool upPressed() {
+    return M5Cardputer.Keyboard.isKeyPressed(';');
+}
+bool downPressed() {
+    return M5Cardputer.Keyboard.isKeyPressed('.');
+}
+bool leftPressed() {
+    return M5Cardputer.Keyboard.isKeyPressed(',');
+}
+bool rightPressed() {
+    return M5Cardputer.Keyboard.isKeyPressed('/');
+}
+bool selectPressed() {
+    return M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
+}
+bool returnPressed() {
+    return M5Cardputer.Keyboard.isKeyPressed('`');
+}
+
+bool anyPressed() {
+    return M5Cardputer.Keyboard.isPressed();
+}
+
+void updateBoard() {
+    M5Cardputer.update();
+}
+
+void displayText(int x, int y, const char* text, uint32_t color) {
+    M5.Display.setCursor(x, y);
+    M5.Display.setTextColor(color);
+    M5.Display.print(text);
+}
+
+void clearScreen(uint32_t color) {
+    M5.Display.fillScreen(color);
 }

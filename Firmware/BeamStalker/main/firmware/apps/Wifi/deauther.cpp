@@ -52,55 +52,46 @@ int Deauther() {
 
     drawMenu(Menu, Selector);
 
-    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
     int aps_count = 0;
     int clients_count = 0;
     AP* aps = NULL;
     mac_addr_t* clients = NULL;
 
-
     while (1) {
-        M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isPressed()) {
-            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
-            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
-            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
-            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
-            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
-            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
-
-            if (RETURNp) {
+        updateBoard();
+        if (anyPressed()) {
+            if (returnPressed()) {
                 stop_wifi();
                 vTaskDelay(pdMS_TO_TICKS(300));
 
                 return 0;
             }
-            else if (UPp) {
+            else if (upPressed()) {
                 Selector = intChecker(Selector - 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (DOWNp) {
+            else if (downPressed()) {
                 Selector = intChecker(Selector + 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (LEFTp && (Menu.elements[Selector].type == 0)) {
+            else if (leftPressed() && (Menu.elements[Selector].type == 0)) {
                 Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (RIGHTp  && (Menu.elements[Selector].type == 0)) {
+            else if (rightPressed()  && (Menu.elements[Selector].type == 0)) {
                 Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            if (SELECTp) {
-                M5GFX_clear_screen();
+            if (selectPressed()) {
+                clearScreen();
                 vTaskDelay(pdMS_TO_TICKS(300));
                 
                 switch (Selector) {
                     case 0: // Select AP
-                        M5GFX_display_text(0, 0, "Scanning...\r", TFT_WHITE);
+                        displayText(0, 0, "Scanning...\r", TFT_WHITE);
                         aps = select_wifi_menu(&aps_count);
-                        M5GFX_display_text(0, 0, "", TFT_WHITE);
-                        M5GFX_clear_screen();
+                        displayText(0, 0, "", TFT_WHITE);
+                        clearScreen();
 
                         for (int i = 0; i < aps_count; i ++) {
                             printf ("%d: %s\n", i, aps[i].name);
@@ -118,11 +109,11 @@ int Deauther() {
                         sprintf(buffer, "Sniffing clients...\nFor %d selected APs\nDuring 10s", aps_count);
                         printf("%s\n", buffer); // Print the string to verify
 
-                        M5GFX_display_text(0, 0, buffer, TFT_WHITE);
+                        displayText(0, 0, buffer, TFT_WHITE);
 
                         clients = select_client_menu(&clients_count, aps, aps_count);
-                        M5GFX_display_text(0, 0, "", TFT_WHITE);
-                        M5GFX_clear_screen();
+                        displayText(0, 0, "", TFT_WHITE);
+                        clearScreen();
 
                         // for (int i = 0; i < clients_count; i ++) {
                         //     printf ("%d: %02x:%02x:%02x:%02x:%02x:%02x\n", i, clients[i][0],clients[i][1],clients[i][2],clients[i][3],clients[i][4],clients[i][5]);
@@ -142,7 +133,7 @@ int Deauther() {
 
                         init_pps_timer();
                         vTaskDelay(pdMS_TO_TICKS(100));
-                        M5Cardputer.update();
+                        updateBoard();
 
                         stop_wifi();
                         vTaskDelay(pdMS_TO_TICKS(100)); 
@@ -150,8 +141,8 @@ int Deauther() {
 
                         int wait = 1;
                         while (wait) {
-                            M5Cardputer.update();
-                            if (M5Cardputer.Keyboard.isPressed()) {
+                            updateBoard();
+                            if (anyPressed()) {
                                 wait = 0;
                             }
 

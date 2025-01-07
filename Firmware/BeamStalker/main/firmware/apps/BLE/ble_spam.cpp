@@ -157,19 +157,10 @@ int BLESpam() {
 
     drawMenu(Menu, Selector);
 
-    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
-
     while (1) {
-        M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isChange()) {
-            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
-            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
-            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
-            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
-            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
-            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
-
-            if (RETURNp) {
+        updateBoard();
+        if (anyPressed()) {
+            if (returnPressed()) {
 /* STOP BLE */
                 ESP_ERROR_CHECK(esp_bluedroid_disable());
                 ESP_ERROR_CHECK(esp_bluedroid_deinit());
@@ -181,30 +172,30 @@ int BLESpam() {
 
                 return 0;
             }
-            else if (UPp) {
+            else if (upPressed()) {
                 Selector = intChecker(Selector - 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (DOWNp) {
+            else if (downPressed()) {
                 Selector = intChecker(Selector + 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (LEFTp && (Menu.elements[Selector].type == 0)) {
+            else if (leftPressed() && (Menu.elements[Selector].type == 0)) {
                 Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (RIGHTp  && (Menu.elements[Selector].type == 0)) {
+            else if (rightPressed()  && (Menu.elements[Selector].type == 0)) {
                 Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            if (SELECTp) {
+            if (selectPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
-                M5GFX_clear_screen();
+                clearScreen();
                 switch (Selector) {
                     case 1: // Start attack
                         vTaskDelay(pdMS_TO_TICKS(100));
 
-                        M5GFX_display_text(0, 0, "Spamming!!!", TFT_WHITE);
+                        displayText(0, 0, "Spamming!!!", TFT_WHITE);
 
                         if (Menu.elements[Selector].selector == 4) { // all
                             // choice = (EBLEPayloadType)esp_random() % 4;
@@ -214,8 +205,8 @@ int BLESpam() {
                         }
                         int wait = 1;
                         while (wait) {
-                            M5Cardputer.update();
-                            if (M5Cardputer.Keyboard.isPressed()) {
+                            updateBoard();
+                            if (anyPressed()) {
                                 wait = 0;
                             }
 

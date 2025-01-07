@@ -26,45 +26,29 @@ int App_Wifi_Sniffer() {
 
     drawMenu(Menu, Selector);
 
-    int UPp, DOWNp, SELECTp, RETURNp;
     uint16_t *filters    = NULL;
     int filter_count = 0;
 
     while (1) {
-        M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isPressed()) {
-            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
-            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
-            // LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
-            // RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
-            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
-            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
-
-            if (RETURNp) {
+        updateBoard();
+        if (anyPressed()) {
+            if (returnPressed()) {
                 stop_wifi();
                 vTaskDelay(pdMS_TO_TICKS(300));
 
                 return 0;
             }
-            else if (UPp) {
+            else if (upPressed()) {
                 Selector = intChecker(Selector - 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (DOWNp) {
+            else if (downPressed()) {
                 Selector = intChecker(Selector + 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            //else if (LEFTp && (Menu.elements[Selector].type == 0)) {
-            //     Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
-            //     vTaskDelay(pdMS_TO_TICKS(50));
-            // }
-            // else if (RIGHTp  && (Menu.elements[Selector].type == 0)) {
-            //     Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
-            //     vTaskDelay(pdMS_TO_TICKS(50));
-            // }
-            if (SELECTp) {
+            if (selectPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
-                M5GFX_clear_screen();
+                clearScreen();
 
                 switch (Selector) {
                     case 0: //filter

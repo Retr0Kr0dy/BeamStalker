@@ -31,76 +31,67 @@ int APP_Options() {
 
     drawMenu(Menu, Selector);
 
-    int UPp, DOWNp, SELECTp, RETURNp;
-
     while (1) {
-        M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isPressed()) {
-            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
-            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
-//            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
-//            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
-            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
-            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
-
-            if (RETURNp) {
+        updateBoard();
+        if (anyPressed()) {
+            if (returnPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
-            else if (UPp) {
+            else if (upPressed()) {
                 Selector = intChecker(Selector - 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (DOWNp) {
+            else if (downPressed()) {
                 Selector = intChecker(Selector + 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            if (SELECTp) {
-                M5GFX_clear_screen();
+            if (selectPressed()) {
+                clearScreen();
                 vTaskDelay(pdMS_TO_TICKS(300));
                 int wait = 1;
                 switch (Selector) {
                     case 0:
-                        M5GFX_display_text(0, 0, "Current Firmware:");
-                        M5GFX_display_text(0, 20, VERSION);
+                        displayText(0, 0, "Current Firmware:");
+                        displayText(0, 20, VERSION);
                         vTaskDelay(pdMS_TO_TICKS(200));
                         wait = 1;
                         while (wait) {
-                            M5Cardputer.update();
-                            if (M5Cardputer.Keyboard.isPressed()) {
+                            updateBoard();
+                            if (anyPressed()) {
                                 wait = 0;
                             }
 
                             vTaskDelay(pdMS_TO_TICKS(50));
                         }
-                        M5GFX_clear_screen();
+                        clearScreen();
                         break;
                     case 1:
-                        M5GFX_display_text(0, 0, "Nothing");
+                        displayText(0, 0, "Nothing");
                         vTaskDelay(pdMS_TO_TICKS(200));
                         wait = 1;
                         while (wait) {
-                            M5Cardputer.update();
-                            if (M5Cardputer.Keyboard.isPressed()) {
+                            updateBoard();
+                            if (anyPressed()) {
                                 wait = 0;
                             }
                             vTaskDelay(pdMS_TO_TICKS(50));
                         }
-                        M5GFX_clear_screen();
+                        clearScreen();
                         break;
                     case 2:
-                        M5GFX_display_text(0, 40, "Good job,");
-                        M5GFX_display_text(0, 60, "you develop");
+                        displayText(0, 40, "Good job,");
+                        displayText(0, 60, "you develop");
                         vTaskDelay(pdMS_TO_TICKS(200));
                         wait = 1;
                         while (wait) {
-                            M5Cardputer.update();
-                            if (M5Cardputer.Keyboard.isPressed()) {
+                            updateBoard();
+                            if (anyPressed()) {
                                 wait = 0;
                             }
                             vTaskDelay(pdMS_TO_TICKS(50));
                         }
-                        M5GFX_clear_screen();
+                        clearScreen();
                         break;
                 }
             }
