@@ -1,0 +1,47 @@
+name: Build and release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+
+    - name: Build ESP-IDF Firmware
+      uses: espressif/esp-idf-ci-action@v1
+      with:
+        command: /app/Retr0Kr0dy/BeamStalker/patch-esp-idf.sh && idf.py build
+        esp_idf_version: v4.4
+        target: esp32s3       # Currently we only build for M5Cardputer (so esp32s3)
+        path: 'Firmware/BeamStalker'
+
+    - name: Set name and tag_name
+      id: set_name
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.title }}" ]]; then
+          echo "name=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+          echo "tag_name=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+        elif [[ -n "${{ github.event.head_commit.message }}" ]]; then
+          echo "name=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+          echo "tag_name=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+        else
+          echo "name=BeamStalker" >> $GITHUB_ENV
+          echo "tag_name=vX" >> $GITHUB_ENV
+        fi
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ env.name }}
+        tag_name: ${{ env.tag_name }}
+        fail_on_unmatched_files: true
+        files: |
+          Firmware/BeamStalker/build/BeamStalker-v*.bin
