@@ -17,31 +17,22 @@ int bleMenuTask() {
 
     drawMenu(Menu, Selector);
 
-    int UPp, DOWNp, SELECTp, RETURNp;
-
     while (1) {
-        M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isChange()) {
-            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
-            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
-//            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
-//            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
-            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
-            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
-
-            if (RETURNp) {
+        updateBoard();
+        if (anyPressed()) {
+            if (returnPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
-           else if (UPp) {
+           else if (upPressed()) {
                 Selector = intChecker(Selector - 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (DOWNp) {
+            else if (downPressed()) {
                 Selector = intChecker(Selector + 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            if (SELECTp) {
+            if (selectPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
 
                 switch (Selector) {

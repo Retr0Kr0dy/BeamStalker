@@ -7,10 +7,10 @@ void sniff_pps_timer_callback(TimerHandle_t xTimer) {
     snprintf(ch_buffer, sizeof(ch_buffer), "Channel: %d", channel);
 
     M5.Display.clear();
-    M5GFX_display_text(0, 0*charsize, "Sniffing for 1000s", TFT_WHITE);
-    M5GFX_display_text(0, 2*charsize, pc_buffer, TFT_WHITE);
-    M5GFX_display_text(0, 3*charsize, ch_buffer, TFT_WHITE);
-    M5GFX_display_text(0, 7*charsize, "Press any key to exit...", TFT_WHITE);
+    displayText(0, 0*charsize, "Sniffing for 1000s", TFT_WHITE);
+    displayText(0, 2*charsize, pc_buffer, TFT_WHITE);
+    displayText(0, 3*charsize, ch_buffer, TFT_WHITE);
+    displayText(0, 7*charsize, "Press any key to exit...", TFT_WHITE);
 }
 
 void init_sniff_pps_timer() {
@@ -297,39 +297,30 @@ mac_addr_t* select_client_menu(int *selected_client_count, AP* aps, int aps_coun
 
     drawMenu(Menu, Selector);
 
-    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
-
     while (1) {
-        M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isPressed()) {
-            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
-            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
-            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
-            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
-            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
-            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
-
-            if (RETURNp) {
+        updateBoard();
+        if (anyPressed()) {
+            if (returnPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
-           else if (UPp) {
+           else if (upPressed()) {
                 Selector = intChecker(Selector - 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (DOWNp) {
+            else if (downPressed()) {
                 Selector = intChecker(Selector + 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (LEFTp && (Menu.elements[Selector].type == 0)) {
+            else if (leftPressed() && (Menu.elements[Selector].type == 0)) {
                 Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (RIGHTp  && (Menu.elements[Selector].type == 0)) {
+            else if (rightPressed()  && (Menu.elements[Selector].type == 0)) {
                 Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            if (SELECTp) {
+            if (selectPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
                 if (Selector == (Menu.length - 1)) {  // Select
                     mac_addr_t* selected_clients = getSelectedClients(Menu, sniff_ap_list, selected_client_count);
@@ -411,39 +402,30 @@ uint16_t* select_filter_menu(int *selected_filter_count, uint16_t *filters, int 
 
     drawMenu(Menu, Selector);
 
-    int UPp, DOWNp, LEFTp, RIGHTp, SELECTp, RETURNp;
-
     while (1) {
-        M5Cardputer.update();
-        if (M5Cardputer.Keyboard.isPressed()) {
-            UPp = M5Cardputer.Keyboard.isKeyPressed(';');
-            DOWNp = M5Cardputer.Keyboard.isKeyPressed('.');
-            LEFTp = M5Cardputer.Keyboard.isKeyPressed(',');
-            RIGHTp = M5Cardputer.Keyboard.isKeyPressed('/');
-            SELECTp = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
-            RETURNp = M5Cardputer.Keyboard.isKeyPressed('`');
-
-            if (RETURNp) {
+        updateBoard();
+        if (anyPressed()) {
+            if (returnPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
                 return 0;
             }
-           else if (UPp) {
+           else if (upPressed()) {
                 Selector = intChecker(Selector - 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (DOWNp) {
+            else if (downPressed()) {
                 Selector = intChecker(Selector + 1, Menu.length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (LEFTp && (Menu.elements[Selector].type == 0)) {
+            else if (leftPressed() && (Menu.elements[Selector].type == 0)) {
                 Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            else if (RIGHTp  && (Menu.elements[Selector].type == 0)) {
+            else if (rightPressed()  && (Menu.elements[Selector].type == 0)) {
                 Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            if (SELECTp) {
+            if (selectPressed()) {
                 vTaskDelay(pdMS_TO_TICKS(300));
                 if (Selector == (Menu.length - 1)) {  // Select
                     uint16_t* selected_filters = getSelectedFilter(Menu, filters, selected_filter_count);
