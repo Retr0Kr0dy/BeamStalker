@@ -28,4 +28,3 @@ jobs:
         esp_idf_version: v4.4
         target: ${{ matrix.idf_target }}
         path: 'Firmware/BeamStalker'
-      continue-on-error: true
