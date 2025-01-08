@@ -8,6 +8,9 @@ for board in $(ls ./boards);
     config_file=$board
     board_name=${board##*.}
     version=$(grep VERSION main/firmware/helper.h | awk -F'"' '{print $2}')
+    mcu=$(grep "CONFIG_IDF_TARGET" boards/sdkconfig.M5Cardputer | awk -F'"' '{print $2}')
+
+    idf.py set-target $mcu
 
     cp ./boards/$config_file sdkconfig
     cp ./boards/$config_file sdkconfig.defaults
