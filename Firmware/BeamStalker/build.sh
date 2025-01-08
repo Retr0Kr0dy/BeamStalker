@@ -1,7 +1,8 @@
 #!/bin/bash
 
-set -e
 set -x
+
+ls /AAAAAAAAA/DDLSM
 
 for board in $(ls ./boards);
     do
