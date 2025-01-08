@@ -6,7 +6,7 @@ void sniff_pps_timer_callback(TimerHandle_t xTimer) {
     char ch_buffer[32];
     snprintf(ch_buffer, sizeof(ch_buffer), "Channel: %d", channel);
 
-    M5.Display.clear();
+    clearScreen();
     displayText(0, 0*charsize, "Sniffing for 1000s", TFT_WHITE);
     displayText(0, 2*charsize, pc_buffer, TFT_WHITE);
     displayText(0, 3*charsize, ch_buffer, TFT_WHITE);
@@ -184,8 +184,8 @@ int sniff(int duration, uint16_t *type_filter, int verbose) {
 
     while (time(NULL) < end_time) {
         if (verbose == 1) { // if using wifi sniffer app, need to catch key press for exit
-            M5Cardputer.update();
-            if (M5Cardputer.Keyboard.isPressed()) {
+            updateBoard();
+            if (anyPressed()) {
                 break;
             }
         }    

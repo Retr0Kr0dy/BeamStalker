@@ -1,8 +1,6 @@
 #ifndef BEACON_SPAM_H
 #define BEACON_SPAM_H
 
-#include <M5Cardputer.h>
-
 #include "../../includes/wifi.h"
 #include "../../menu.h"
 

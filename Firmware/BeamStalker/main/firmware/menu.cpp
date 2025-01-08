@@ -24,7 +24,7 @@ char *createHeaderLine(const char *menu_name) {
         cropped_menu_name[strlen(menu_name)] = '\0';
     }
 
-    auto chargingStatus = M5Cardputer.Power.isCharging();
+    auto chargingStatus = isCharging();
     char is_charging_str[4];
 
     if (chargingStatus == true) {
@@ -35,7 +35,7 @@ char *createHeaderLine(const char *menu_name) {
         snprintf(is_charging_str, sizeof(is_charging_str), "UNK"); // Unknown status
     }
 
-    int batteryLevel = M5Cardputer.Power.getBatteryLevel();
+    int batteryLevel = getBatteryLevel();
     char bat_percentage_str[12];
 
     if (batteryLevel >= 0 && batteryLevel <= 100) {
@@ -44,7 +44,7 @@ char *createHeaderLine(const char *menu_name) {
         snprintf(bat_percentage_str, sizeof(bat_percentage_str), "N/A");
     }
 
-    int16_t batteryVoltage = M5Cardputer.Power.getBatteryVoltage();
+    int16_t batteryVoltage = getBatteryVoltage();
     char bat_voltage_str[12];
 
     if (batteryVoltage >= 0 && batteryVoltage <= 10000) {
@@ -58,13 +58,27 @@ char *createHeaderLine(const char *menu_name) {
     return final;
 }
 
+void serialMenu(struct menu Menu) {
+    printf ("-=%s=-\n",Menu.name);
+
+    for (int i = 0; i < Menu.length; i++) {
+        printf ("%d - %s\n", i, Menu.elements[i].name);
+        if (Menu.elements[i].type == 1) {
+            for (int j = 0; j < Menu.elements[i].length; j++) {
+                printf (" - %d%d: %s\n",i,j, Menu.elements[i].options[j]);
+            }
+        }
+    }
+}
+
 void drawMenu(struct menu Menu, int selector) {
+    serialMenu(Menu);
     char fullMenuName[50];
     sprintf(fullMenuName, "%s",createHeaderLine(Menu.name));
 
     clearScreen();
 
-    M5.Display.fillRect(0, 0, M5.Display.width(), charsize, TFT_CYAN);
+    drawFillRect(0, 0, DISPLAY_WIDTH, charsize, TFT_WHITE);
     displayText(0, 0, fullMenuName, TFT_BLACK);
 
     int j = 1;
@@ -96,7 +110,7 @@ void drawMenu(struct menu Menu, int selector) {
         }
 
         if (i == 0) {
-            displayText(0, j*charsize, element_str, TFT_GREEN);
+            displayText(0, j*charsize, element_str, TFT_CYAN);
         } else {
             displayText(0, j*charsize, element_str, TFT_WHITE);
         }
@@ -115,60 +129,7 @@ void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8
     for (int16_t i = 0; i < height; i++) {
         for (int16_t j = 0; j < width; j++) {
             uint8_t bit = (bitmap[i * (width / 8) + (j / 8)] >> (7 - (j % 8))) & 1;
-            M5.Display.drawPixel(x + j, y + i, bit ? color : TFT_BLACK);
+            drawPixel(x + j, y + i, bit ? color : TFT_BLACK);
         }
     }
-}
-
-bool upPressed() {
-    #ifdef CONFIG_M5_BOARD
-    return M5Cardputer.Keyboard.isKeyPressed(';');
-    #endif
-}
-bool downPressed() {
-    #ifdef CONFIG_M5_BOARD
-    return M5Cardputer.Keyboard.isKeyPressed('.');
-    #endif
-}
-bool leftPressed() {
-    #ifdef CONFIG_M5_BOARD
-    return M5Cardputer.Keyboard.isKeyPressed(',');
-    #endif
-}
-bool rightPressed() {
-    #ifdef CONFIG_M5_BOARD
-    return M5Cardputer.Keyboard.isKeyPressed('/');
-    #endif
-}
-bool selectPressed() {
-    #ifdef CONFIG_M5_BOARD
-    return M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
-    #endif
-}
-bool returnPressed() {
-    #ifdef CONFIG_M5_BOARD
-    return M5Cardputer.Keyboard.isKeyPressed('`');
-    #endif
-}
-
-bool anyPressed() {
-    #ifdef CONFIG_M5_BOARD
-    return M5Cardputer.Keyboard.isPressed();
-    #endif
-}
-
-void updateBoard() {
-    #ifdef CONFIG_M5_BOARD
-    M5Cardputer.update();
-    #endif
-}
-
-void displayText(int x, int y, const char* text, uint32_t color) {
-    M5.Display.setCursor(x, y);
-    M5.Display.setTextColor(color);
-    M5.Display.print(text);
-}
-
-void clearScreen(uint32_t color) {
-    M5.Display.fillScreen(color);
 }

@@ -113,10 +113,7 @@ int mainTask() {
 }
 
 extern "C" void app_main(void) {
-    #ifdef CONFIG_M5_BOARD
-    M5Cardputer.begin(true);
-    M5.Power.begin();
-    #endif
+    initBoard();
 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -126,46 +123,29 @@ extern "C" void app_main(void) {
     ESP_ERROR_CHECK(ret);
 
     clearScreen();
-    M5.Display.setTextSize(charsize_multiplier);
-    M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
-    M5.Display.setFont(&fonts::FreeMonoBold18pt7b);
     const char* name = "BeamStalker";
 
     for (;;) {
         clearScreen();
-        int16_t x = ((M5.Display.width() - 120) / 4) * 3;
+        int16_t x = ((DISPLAY_WIDTH - 120) / 4) * 3;
         drawBitmap(x, 0, 120, 120, skully, TFT_WHITE);
         
         vTaskDelay(pdMS_TO_TICKS(200));
 
-        #ifdef CONFIG_M5_BOARD
-        M5.Display.setCursor(0, 70);
-        M5.Display.print(name);
-        M5.Display.setCursor(0, 90);
-        M5.Display.print(VERSION);
-        #endif
+        displayText(0, 70, name);
+        displayText(0, 90, VERSION);
 
         printf("%s %s\n", name, VERSION);
 
         vTaskDelay(pdMS_TO_TICKS(500));
 
-        M5.Display.setCursor(0, 110);
-        M5.Display.print("Press to boot...");
+        displayText(0, 110, "Press to boot...");
 
         int loop = 1;
 
         while (loop) {
             updateBoard();
             if (anyPressed()) {
-                int wait = 1;
-                while (wait) {
-                    updateBoard();
-                    if (anyPressed()) {
-                        wait = 0;
-                    }
-                    vTaskDelay(pdMS_TO_TICKS(30));
-                }
-
                 clearScreen();
 
                 int taskRet = mainTask();

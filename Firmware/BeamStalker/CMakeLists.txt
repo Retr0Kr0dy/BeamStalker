@@ -6,17 +6,7 @@ cmake_minimum_required(VERSION 3.5)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
-set(OUTPUT_NAME "BeamStalker")
-
-file(READ "main/firmware/helper.h" HELPER_CONTENTS)
-string(REGEX MATCH "#define VERSION \"([^\"]+)\"" VERSION_MATCH "${HELPER_CONTENTS}")
-
-if(VERSION_MATCH)
-    string(REGEX REPLACE "#define VERSION \"([^\"]+)\"" "\\1" VERSION "${VERSION_MATCH}")
-    set(OUTPUT_NAME "${OUTPUT_NAME}-${VERSION}")
-endif()
-
-project(${OUTPUT_NAME})
+project("BeamStalker")
 
 # Set the C++ standard for the entire project
 set(CMAKE_CXX_STANDARD 17)

@@ -1,8 +1,6 @@
 #ifndef DEAUTHER_H
 #define DEAUTHER_H
 
-#include <M5Cardputer.h>
-
 #include "../../includes/wifi_sniffer.h"
 #include "../../includes/wifi.h"
 #include "../../menu.h"
