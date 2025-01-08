@@ -14,7 +14,7 @@ for board in $(ls ./boards);
         echo "IDF_TARGET is not set. Compiling anyway..."
     elif [ "$IDF_TARGET" != "$mcu" ]; then
         echo "IDF_TARGET ($IDF_TARGET) does not match MCU ($mcu). Next candidate"
-        break
+        continue
     fi
 
     idf.py set-target $mcu
