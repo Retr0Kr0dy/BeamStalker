@@ -62,10 +62,12 @@ int handleDefaultButton() { // Need to be enhanced a lot
 bool upPressed() {
     #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed(';');
+    #else
+    return false;
     #endif
 }
 bool downPressed() {
-    bool default_btn, custom_btn, serial_btn = false;
+    bool default_btn = false, custom_btn = false, serial_btn = false;
 
     default_btn = DEFAULT_BTN_DOUBLE_PRESS;
 
@@ -78,10 +80,12 @@ bool downPressed() {
 bool leftPressed() {
     #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed(',');
+    #else
+    return false;
     #endif
 }
 bool rightPressed() {
-    bool default_btn, custom_btn, serial_btn = false;
+    bool default_btn = false, custom_btn = false, serial_btn = false;
 
     default_btn = DEFAULT_BTN_FAST_LONG_PRESS;
 
@@ -92,7 +96,7 @@ bool rightPressed() {
     return (bool)(default_btn||custom_btn||serial_btn);
 }
 bool selectPressed() {
-    bool default_btn, custom_btn, serial_btn = false;
+    bool default_btn = false, custom_btn = false, serial_btn = false;
 
     default_btn = DEFAULT_BTN_FAST_PRESS;
 
@@ -103,7 +107,7 @@ bool selectPressed() {
     return (bool)(default_btn||custom_btn||serial_btn);
 }
 bool returnPressed() {
-    bool default_btn, custom_btn, serial_btn = false;
+    bool default_btn = false, custom_btn = false, serial_btn = false;
 
     default_btn = DEFAULT_BTN_LONG_PRESS;
 
@@ -115,7 +119,7 @@ bool returnPressed() {
 }
 
 bool anyPressed() {
-    bool default_btn, custom_btn, serial_btn = false;
+    bool default_btn = false, custom_btn = false, serial_btn = false;
     
     default_btn = DEFAULT_BTN_PRESSED;
 
@@ -156,18 +160,24 @@ void initBoard() {
 int getBatteryLevel() {
     #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Power.getBatteryLevel();
+    #else
+    return -1;
     #endif
 }
 
 int16_t getBatteryVoltage() {
     #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Power.getBatteryVoltage();
+    #else
+    return -1;
     #endif    
 }
 
 int isCharging() {
     #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Power.isCharging();
+    #else
+    return -1;
     #endif    
 }
 

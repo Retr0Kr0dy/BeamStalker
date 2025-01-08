@@ -1,7 +1,7 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#define VERSION "v0.2.7.15"
+#define VERSION "v0.2.7.16"
 #define ROW_SIZE 7
 #define COLUMN_SIZE 7
 #define SCREEN_WIDTH 128

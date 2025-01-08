@@ -58,21 +58,23 @@ char *createHeaderLine(const char *menu_name) {
     return final;
 }
 
-void serialMenu(struct menu Menu) {
+void serialMenu(struct menu Menu, int selector) {
     printf ("-=%s=-\n",Menu.name);
 
     for (int i = 0; i < Menu.length; i++) {
+        if (selector == i) {printf (">");}
+        if (selector == i) {printf (" ");}
         printf ("%d - %s\n", i, Menu.elements[i].name);
         if (Menu.elements[i].type == 1) {
             for (int j = 0; j < Menu.elements[i].length; j++) {
-                printf (" - %d%d: %s\n",i,j, Menu.elements[i].options[j]);
+                printf (" -< %d%d: %s\n",i,j, Menu.elements[i].options[j]);
             }
         }
     }
 }
 
 void drawMenu(struct menu Menu, int selector) {
-    serialMenu(Menu);
+    serialMenu(Menu, selector);
     char fullMenuName[50];
     sprintf(fullMenuName, "%s",createHeaderLine(Menu.name));
 

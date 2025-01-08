@@ -3,18 +3,11 @@ extern "C" {
 #include <string.h>
 #include <stdlib.h>
 }
-#include "esp_wifi.h"
-#include "esp_event.h"
-#include "esp_task_wdt.h"
-#include "nvs_flash.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/timers.h"
-#include "time.h"
 
 #include "firmware/helper.h"
 #include "firmware/bitmaps.h"
 #include "firmware/menu.h"
+#include "firmware/interface.h"
 
 #include "firmware/apps/options.h"
 #include "firmware/apps/Wifi/wifi_main.h"
