@@ -8,7 +8,7 @@ for board in $(ls ./boards);
     config_file=$board
     board_name=${board##*.}
     version=$(grep VERSION main/firmware/helper.h | awk -F'"' '{print $2}')
-    mcu=$(grep "CONFIG_IDF_TARGET" boards/sdkconfig.M5Cardputer | awk -F'"' '{print $2}')
+    mcu=$(grep "CONFIG_IDF_TARGET" boards/$board | awk -F'"' '{print $2}')
 
     if [ -z "$IDF_TARGET" ]; then
         echo "IDF_TARGET is not set. Compiling anyway..."
