@@ -1,8 +1,7 @@
 #!/bin/bash
 
 set -x
-
-ls /AAAAAAAAA/DDLSM
+set -e
 
 for board in $(ls ./boards);
     do
@@ -10,6 +9,13 @@ for board in $(ls ./boards);
     board_name=${board##*.}
     version=$(grep VERSION main/firmware/helper.h | awk -F'"' '{print $2}')
     mcu=$(grep "CONFIG_IDF_TARGET" boards/sdkconfig.M5Cardputer | awk -F'"' '{print $2}')
+
+    if [ -z "$IDF_TARGET" ]; then
+        echo "IDF_TARGET is not set. Compiling anyway..."
+    elif [ "$IDF_TARGET" != "$mcu" ]; then
+        echo "IDF_TARGET ($IDF_TARGET) does not match MCU ($mcu). Next candidate"
+        break
+    fi
 
     idf.py set-target $mcu
 
