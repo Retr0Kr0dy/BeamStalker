@@ -13,10 +13,9 @@ void pps_timer_callback(TimerHandle_t xTimer) {
     char buffer[32];
     snprintf(buffer, sizeof(buffer), "%d packets/sec", packet_count);
 
-    M5.Display.clear();
-    M5.Display.setCursor(0, 20);
-    M5.Display.println("Attacking...");
-    M5.Display.println(buffer);
+    clearScreen();
+    displayText(0, 20, "Attacking...");
+    displayText(0, 30, buffer);
 
     packet_count = 0;
 }
@@ -66,19 +65,20 @@ AP* scan_wifi_ap(int *ap_count) {
 
     ret = esp_wifi_scan_start(NULL, true);
     if (ret != ESP_OK) {
-        M5.Display.printf("Failed to start scan: %s\n", esp_err_to_name(ret));
+        printf("Failed to start scan: %s\n", esp_err_to_name(ret));
+
         return NULL;
     }
 
     ret = esp_wifi_scan_get_ap_records(&num_aps, ap_records);
     if (ret != ESP_OK) {
-        M5.Display.printf("Failed to get AP records: %s\n", esp_err_to_name(ret));
+        printf("Failed to get AP records: %s\n", esp_err_to_name(ret));
         return NULL;
     }
 
     AP *ap_info_list = (AP *)malloc(num_aps * sizeof(AP));
     if (ap_info_list == NULL) {
-        M5.Display.printf("Failed to allocate memory for AP info list\n");
+        printf("Failed to allocate memory for AP info list\n");
         return NULL;
     }
 

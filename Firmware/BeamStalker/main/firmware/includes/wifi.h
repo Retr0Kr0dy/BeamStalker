@@ -1,8 +1,6 @@
 #ifndef WIFI_H
 #define WIFI_H
 
-#include <M5Cardputer.h>
-
 #include "esp_wifi.h"
 #include "freertos/timers.h"
 

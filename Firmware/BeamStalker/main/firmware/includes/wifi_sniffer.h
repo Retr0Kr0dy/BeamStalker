@@ -1,8 +1,6 @@
 #ifndef WIFI_SNIFFER_H
 #define WIFI_SNIFFER_H
 
-#include <M5Cardputer.h>
-
 #include "esp_wifi.h"
 #include "esp_wifi_types.h"
 #include "freertos/timers.h"
