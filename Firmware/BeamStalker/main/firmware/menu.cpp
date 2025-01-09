@@ -11,7 +11,13 @@ int intChecker(int value, int length) {
 }
 
 char *createHeaderLine(const char *menu_name) {
+    #ifdef CONFIG_M5_BOARD
     const int max_menu_name = 10 + 7 - 6;
+    #elif CONFIG_HELTEC_BOARD
+    const int max_menu_name = 10 + 5;
+    #else
+    const int max_menu_name = 10 + 5;
+    #endif
 
     static char final[50];
     char cropped_menu_name[max_menu_name + 1];
@@ -80,7 +86,11 @@ void drawMenu(struct menu Menu, int selector) {
 
     clearScreen();
 
+    #ifdef CONFIG_M5_BOARD
     drawFillRect(0, 0, DISPLAY_WIDTH, charsize, TFT_WHITE);
+    #elif CONFIG_HELTEC_BOARD
+    drawFillRect(0, 0, DISPLAY_WIDTH, charsize, TFT_BLACK);
+    #endif
     displayText(0, 0, fullMenuName, TFT_BLACK);
 
     int j = 1;
@@ -90,8 +100,17 @@ void drawMenu(struct menu Menu, int selector) {
         struct item element = Menu.elements[intChecker(selector+i, Menu.length)];
 
         if (element.type == 0) {
+            #ifdef CONFIG_M5_BOARD
             const int max_element = 14;
             const int max_value = 10-4;
+            #elif CONFIG_HELTEC_BOARD
+            const int max_element = 10;
+            const int max_value = 2;
+            #else
+            const int max_element = 10;
+            const int max_value = 2;
+            #endif
+
             char cropped_element[max_element + 1];
 
             if (strlen(element.name) > max_element) {
@@ -112,26 +131,17 @@ void drawMenu(struct menu Menu, int selector) {
         }
 
         if (i == 0) {
-            displayText(0, j*charsize, element_str, TFT_CYAN);
+            #ifdef CONFIG_M5_BOARD
+            displayText(0, j, element_str, TFT_CYAN);
+            #elif CONFIG_HELTEC_BOARD
+            element_str[0] = '>';
+            displayText(0, j, element_str, TFT_CYAN);
+            #else
+            displayText(0, j, element_str, TFT_CYAN);
+            #endif
         } else {
-            displayText(0, j*charsize, element_str, TFT_WHITE);
+            displayText(0, j, element_str, TFT_WHITE);
         }
         j++;
-    }
-}
-
-int LogError(const std::string& message) {
-    clearScreen();
-    displayText(0, 1 * charsize, message.c_str(), TFT_RED);
-    vTaskDelay(pdMS_TO_TICKS(5000));
-    return 0;
-}
-
-void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *bitmap, uint32_t color) {
-    for (int16_t i = 0; i < height; i++) {
-        for (int16_t j = 0; j < width; j++) {
-            uint8_t bit = (bitmap[i * (width / 8) + (j / 8)] >> (7 - (j % 8))) & 1;
-            drawPixel(x + j, y + i, bit ? color : TFT_BLACK);
-        }
     }
 }

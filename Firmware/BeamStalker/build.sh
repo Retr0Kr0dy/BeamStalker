@@ -25,6 +25,6 @@ for board in $(ls ./boards);
     idf.py build
     mv ./build/BeamStalker.bin ./bin/BeamStalker-$version-$board_name.bin
     idf.py fullclean
-
+    rm sdkconfig sdkconfig.defaults
     done
 
