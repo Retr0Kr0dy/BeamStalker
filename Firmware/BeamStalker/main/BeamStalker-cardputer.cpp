@@ -125,14 +125,14 @@ extern "C" void app_main(void) {
         
         vTaskDelay(pdMS_TO_TICKS(200));
 
-        displayText(0, 70, name);
-        displayText(0, 90, VERSION);
+        displayText(0, 4, name);
+        displayText(0, 5, VERSION);
 
         printf("%s %s\n", name, VERSION);
 
         vTaskDelay(pdMS_TO_TICKS(500));
 
-        displayText(0, 110, "Press to boot...");
+        displayText(0, 7, "Press to boot...");
 
         int loop = 1;
 

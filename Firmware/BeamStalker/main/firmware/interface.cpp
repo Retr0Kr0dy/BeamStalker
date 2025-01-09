@@ -150,10 +150,14 @@ void initBoard() {
     #ifdef CONFIG_M5_BOARD
     M5Cardputer.begin(true);
     M5.Power.begin();
-
     M5.Display.setTextSize(charsize_multiplier);
     M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
     M5.Display.setFont(&fonts::FreeMonoBold18pt7b);
+    #elif CONFIG_HELTEC_BOARD
+    i2c_master_init(&display, CONFIG_SCL_GPIO, CONFIG_SDA_GPIO, CONFIG_RESET_GPIO);
+    ssd1306_init(&display, 128, 64);
+    ssd1306_contrast(&display, 0xff);
+    ssd1306_clear_screen(&display, false);
     #endif
 }
 
@@ -183,15 +187,19 @@ int isCharging() {
 
 void displayText(int x, int y, const char* text, uint32_t color) {
     #ifdef CONFIG_M5_BOARD
-    M5.Display.setCursor(x, y);
+    M5.Display.setCursor(x, y*charsize);
     M5.Display.setTextColor(color);
     M5.Display.print(text);
+    #elif CONFIG_HELTEC_BOARD
+    ssd1306_display_text(&display, y, (char*)text, strlen(text), false);
     #endif
 }
 
 void clearScreen(uint32_t color) {
     #ifdef CONFIG_M5_BOARD
     M5.Display.fillScreen(color);
+    #elif CONFIG_HELTEC_BOARD
+    ssd1306_clear_screen(&display, false);
     #endif
 }
 
@@ -204,5 +212,25 @@ void drawPixel(int32_t x, int32_t y, const unsigned int &color) {
 void drawFillRect(int x, int y, int end_x, int end_y, const unsigned int &color) {
     #ifdef CONFIG_M5_BOARD
     M5.Display.fillRect(x, y, end_x, end_y, color);
+    #endif
+}
+
+int LogError(const std::string& message) {
+    clearScreen();
+    displayText(0, 1, message.c_str(), TFT_RED);
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    return 0;
+}
+
+void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *bitmap, uint32_t color) {
+    #ifdef CONFIG_HELTEC_BOARD
+    ssd1306_bitmaps(&display, x, y, (uint8_t*)bitmap, width, height, false);
+    #else
+    for (int16_t i = 0; i < height; i++) {
+        for (int16_t j = 0; j < width; j++) {
+            uint8_t bit = (bitmap[i * (width / 8) + (j / 8)] >> (7 - (j % 8))) & 1;
+            drawPixel(x + j, y + i, bit ? color : TFT_BLACK);
+        }
+    }
     #endif
 }

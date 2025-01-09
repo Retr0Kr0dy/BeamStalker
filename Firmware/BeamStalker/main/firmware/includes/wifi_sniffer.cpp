@@ -7,10 +7,10 @@ void sniff_pps_timer_callback(TimerHandle_t xTimer) {
     snprintf(ch_buffer, sizeof(ch_buffer), "Channel: %d", channel);
 
     clearScreen();
-    displayText(0, 0*charsize, "Sniffing for 1000s", TFT_WHITE);
-    displayText(0, 2*charsize, pc_buffer, TFT_WHITE);
-    displayText(0, 3*charsize, ch_buffer, TFT_WHITE);
-    displayText(0, 7*charsize, "Press any key to exit...", TFT_WHITE);
+    displayText(0, 0, "Sniffing for 1000s", TFT_WHITE);
+    displayText(0, 2, pc_buffer, TFT_WHITE);
+    displayText(0, 3, ch_buffer, TFT_WHITE);
+    displayText(0, 7, "Press any key to exit...", TFT_WHITE);
 }
 
 void init_sniff_pps_timer() {

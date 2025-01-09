@@ -1,9 +1,21 @@
 menu "BeamStalker Build Configuration"
 
 config M5_BOARD
-    bool "is M5Stack hardware"
+    bool "Is M5Stack hardware"
     default n
     help
         Specify if board is using M5Stack libs.
 
+config HELTEC_BOARD
+    bool "Is Heltec hardware"
+    default n
+    help
+        Specify if board is using Heltec libs.
+                        
+config HAS_SSD1306_DISPLAY
+    bool "Has ssd1306 display"
+    default n
+    help
+        Specify if board is using SSD1306 libs.
+        
 endmenu

@@ -21,13 +21,7 @@ struct menu {
     int length;
 };
 
-float charsize_multiplier = 0.5;
-int font_size = 18;
-int charsize = (int)(font_size*charsize_multiplier)+((40*font_size)/100);
-
 int intChecker(int value, int length);
 char *createHeaderLine(const char *menu_name);
 void drawMenu(struct menu Menu, int selector);
-int LogError(const std::string& message);
-void drawBitmap(int16_t x, int16_t y, int16_t width, int16_t height, const uint8_t *bitmap, uint32_t color);
 #endif
