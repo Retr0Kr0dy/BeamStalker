@@ -25,6 +25,12 @@
 #include "ssd1306.h"
 #endif
 
+#ifdef CONFIG_HAS_SDCARD
+extern "C" {
+#include "sd_card.h"
+}
+#endif
+
 // Temp fix for missing M5Cardputer.h
 #ifndef CONFIG_M5_BOARD
 #undef TFT_WHITE

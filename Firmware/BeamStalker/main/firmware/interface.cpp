@@ -159,6 +159,9 @@ void initBoard() {
     ssd1306_contrast(&display, 0xff);
     ssd1306_clear_screen(&display, false);
     #endif
+    #ifdef CONFIG_HAS_SDCARD
+    initSDCard();
+    #endif
 }
 
 int getBatteryLevel() {
