@@ -1,5 +1,9 @@
 #include "interface.h"
 
+#include "driver/gpio.h"
+#include "driver/uart.h"
+#include "rom/uart.h"
+
 bool DEFAULT_BTN_PRESSED,
     DEFAULT_BTN_FAST_PRESS,
     DEFAULT_BTN_LONG_PRESS,
@@ -7,6 +11,83 @@ bool DEFAULT_BTN_PRESSED,
     DEFAULT_BTN_FAST_LONG_PRESS = false;
     
 bool DEFAULT_BTN_LAST_WAS_PRESSED = false;
+
+bool SERIAL_CONSOLE_UP,
+    SERIAL_CONSOLE_DOWN,
+    SERIAL_CONSOLE_LEFT,
+    SERIAL_CONSOLE_RIGHT,
+    SERIAL_CONSOLE_SELECT,
+    SERIAL_CONSOLE_RETURN = false;
+
+bool SERIAL_CONSOLE_NOT_EMPTY = false;
+
+#define UART_PORT_NUM    UART_NUM_1
+#define BUF_SIZE         1024
+
+bool checkUartChar() {
+    uint8_t chr;
+    bool ret = uart_rx_one_char(reinterpret_cast<uint8_t*>(&chr));
+    if (ret) {
+        if (chr!=0xFF)
+	    {
+		    fputc(chr, stdout);
+	    }
+
+        SERIAL_CONSOLE_NOT_EMPTY = true;
+
+        SERIAL_CONSOLE_UP = false;
+        SERIAL_CONSOLE_DOWN = false;
+        SERIAL_CONSOLE_LEFT = false;
+        SERIAL_CONSOLE_RIGHT = false;
+        SERIAL_CONSOLE_SELECT = false;
+        SERIAL_CONSOLE_RETURN = false;
+        switch (chr)
+        {
+        case 'z':
+            SERIAL_CONSOLE_UP = true;
+            break;
+        case 's':
+            SERIAL_CONSOLE_DOWN = true;
+            break;
+        case 'q':
+            SERIAL_CONSOLE_LEFT = true;
+            break;
+        case 'd':
+            SERIAL_CONSOLE_RIGHT = true;
+            break;
+        case 'a':
+            SERIAL_CONSOLE_RETURN = true;
+            break;
+        case 'e':
+            SERIAL_CONSOLE_SELECT = true;
+            break;
+        default:
+            break;
+        }
+
+    } else {
+        SERIAL_CONSOLE_NOT_EMPTY = false;
+    }
+
+    return ret;
+}
+
+bool check_uart_input(const char *str) {
+    uint8_t data[BUF_SIZE];
+    int length = uart_read_bytes(UART_PORT_NUM, data, BUF_SIZE, 0);
+    if (length > 0) {
+        data[length] = '\0';
+        printf("Received data: %s", data);
+
+        SERIAL_CONSOLE_NOT_EMPTY = true;
+
+        if (strstr((char *)data, str)) {
+            return true;
+        }
+    }
+    SERIAL_CONSOLE_NOT_EMPTY = false;
+    return false;
+}
 
 int handleDefaultButton() { // Need to be enhanced a lot
     DEFAULT_BTN_FAST_PRESS = false;
@@ -122,6 +203,7 @@ bool anyPressed() {
     bool default_btn = false, custom_btn = false, serial_btn = false;
     
     default_btn = DEFAULT_BTN_PRESSED;
+    serial_btn = SERIAL_CONSOLE_NOT_EMPTY;
 
     #ifdef CONFIG_M5_BOARD
     custom_btn = M5Cardputer.Keyboard.isPressed();
@@ -132,12 +214,14 @@ bool anyPressed() {
 
 void updateBoard() {
     handleDefaultButton();
+    // checkUartChar();
     #ifdef CONFIG_M5_BOARD
     M5Cardputer.update();
     #endif
 }
 
 void initBoard() {
+    // defauilt button
     gpio_config_t default_btn_conf = {
         .pin_bit_mask = (1ULL << DEFAULT_BTN),
         .mode = GPIO_MODE_INPUT,
@@ -160,7 +244,14 @@ void initBoard() {
     ssd1306_clear_screen(&display, false);
     #endif
     #ifdef CONFIG_HAS_SDCARD
-    initSDCard();
+    initSDCard();    
+
+
+
+            // testSDCard();
+
+
+
     #endif
 }
 

@@ -7,7 +7,6 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "time.h"
-#include "driver/gpio.h"
 
 #include <string>
 
