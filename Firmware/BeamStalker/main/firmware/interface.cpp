@@ -21,55 +21,28 @@ bool SERIAL_CONSOLE_UP,
 
 bool SERIAL_CONSOLE_NOT_EMPTY = false;
 
-#define UART_PORT_NUM    UART_NUM_1
+#define UART_PORT_NUM    UART_NUM_0
 #define BUF_SIZE         1024
 
-bool checkUartChar() {
-    uint8_t chr;
-    bool ret = uart_rx_one_char(reinterpret_cast<uint8_t*>(&chr));
-    if (ret) {
-        if (chr!=0xFF)
-	    {
-		    fputc(chr, stdout);
-	    }
-
+int checkUartChar() {
+    uint8_t data[BUF_SIZE];
+    
+    //bool ret = uart_rx_one_char(reinterpret_cast<uint8_t*>(&chr));
+    int len = uart_read_bytes(UART_PORT_NUM, data, BUF_SIZE, 20 / portTICK_RATE_MS);
+    if (len > 0 && len < BUF_SIZE) {
+        char chr = data[0];
         SERIAL_CONSOLE_NOT_EMPTY = true;
-
-        SERIAL_CONSOLE_UP = false;
-        SERIAL_CONSOLE_DOWN = false;
-        SERIAL_CONSOLE_LEFT = false;
-        SERIAL_CONSOLE_RIGHT = false;
-        SERIAL_CONSOLE_SELECT = false;
-        SERIAL_CONSOLE_RETURN = false;
-        switch (chr)
-        {
-        case 'z':
-            SERIAL_CONSOLE_UP = true;
-            break;
-        case 's':
-            SERIAL_CONSOLE_DOWN = true;
-            break;
-        case 'q':
-            SERIAL_CONSOLE_LEFT = true;
-            break;
-        case 'd':
-            SERIAL_CONSOLE_RIGHT = true;
-            break;
-        case 'a':
-            SERIAL_CONSOLE_RETURN = true;
-            break;
-        case 'e':
-            SERIAL_CONSOLE_SELECT = true;
-            break;
-        default:
-            break;
-        }
-
+        SERIAL_CONSOLE_UP = (chr == 'z');
+        SERIAL_CONSOLE_DOWN = (chr == 's');
+        SERIAL_CONSOLE_LEFT = (chr == 'q');
+        SERIAL_CONSOLE_RIGHT = (chr == 'd');
+        SERIAL_CONSOLE_RETURN = (chr == 'a');
+        SERIAL_CONSOLE_SELECT = (chr == 'e');
     } else {
         SERIAL_CONSOLE_NOT_EMPTY = false;
     }
 
-    return ret;
+    return len;
 }
 
 bool check_uart_input(const char *str) {
@@ -141,16 +114,23 @@ int handleDefaultButton() { // Need to be enhanced a lot
 }
 
 bool upPressed() {
+    bool default_btn = false, custom_btn = false, serial_btn = false;
+
+    serial_btn = SERIAL_CONSOLE_UP;
+    
     #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed(';');
     #else
     return false;
     #endif
+
+    return (bool)(default_btn||custom_btn||serial_btn);
 }
 bool downPressed() {
     bool default_btn = false, custom_btn = false, serial_btn = false;
 
     default_btn = DEFAULT_BTN_DOUBLE_PRESS;
+    serial_btn = SERIAL_CONSOLE_DOWN;
 
     #ifdef CONFIG_M5_BOARD
     custom_btn = M5Cardputer.Keyboard.isKeyPressed('.');
@@ -159,16 +139,24 @@ bool downPressed() {
     return (bool)(default_btn||custom_btn||serial_btn);
 }
 bool leftPressed() {
+    bool default_btn = false, custom_btn = false, serial_btn = false;
+
+    serial_btn = SERIAL_CONSOLE_LEFT;
+
     #ifdef CONFIG_M5_BOARD
     return M5Cardputer.Keyboard.isKeyPressed(',');
     #else
     return false;
     #endif
+
+    return (bool)(default_btn||custom_btn||serial_btn);
 }
+
 bool rightPressed() {
     bool default_btn = false, custom_btn = false, serial_btn = false;
 
     default_btn = DEFAULT_BTN_FAST_LONG_PRESS;
+    serial_btn = SERIAL_CONSOLE_RIGHT;
 
     #ifdef CONFIG_M5_BOARD
     custom_btn = M5Cardputer.Keyboard.isKeyPressed('/');
@@ -180,6 +168,7 @@ bool selectPressed() {
     bool default_btn = false, custom_btn = false, serial_btn = false;
 
     default_btn = DEFAULT_BTN_FAST_PRESS;
+    serial_btn = SERIAL_CONSOLE_SELECT;
 
     #ifdef CONFIG_M5_BOARD
     custom_btn = M5Cardputer.Keyboard.isKeyPressed(KEY_ENTER);
@@ -191,6 +180,7 @@ bool returnPressed() {
     bool default_btn = false, custom_btn = false, serial_btn = false;
 
     default_btn = DEFAULT_BTN_LONG_PRESS;
+    serial_btn = SERIAL_CONSOLE_RETURN;
 
     #ifdef CONFIG_M5_BOARD
     custom_btn = M5Cardputer.Keyboard.isKeyPressed('`');
@@ -214,7 +204,7 @@ bool anyPressed() {
 
 void updateBoard() {
     handleDefaultButton();
-    // checkUartChar();
+    checkUartChar();
     #ifdef CONFIG_M5_BOARD
     M5Cardputer.update();
     #endif
@@ -230,6 +220,26 @@ void initBoard() {
         .intr_type = GPIO_INTR_DISABLE
     };
     gpio_config(&default_btn_conf);
+
+    // serial console
+    uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .rx_flow_ctrl_thresh = 0,
+        .source_clk = UART_SCLK_APB,
+    };
+
+    uart_param_config(UART_PORT_NUM, &uart_config);
+ 
+    esp_err_t err = uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0);
+    if (err != ESP_OK) {
+        printf("Failed to install UART driver: %s\n", esp_err_to_name(err));
+        return;
+    }
+
 
     #ifdef CONFIG_M5_BOARD
     M5Cardputer.begin(true);
