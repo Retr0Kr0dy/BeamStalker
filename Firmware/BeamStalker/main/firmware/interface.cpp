@@ -204,7 +204,10 @@ bool anyPressed() {
 
 void updateBoard() {
     handleDefaultButton();
+    
+    #ifndef CONFIG_M5_BOARD // keeping it like at the moment to narrow the bug (not working only on cardputer)
     checkUartChar();
+    #endif
     #ifdef CONFIG_M5_BOARD
     M5Cardputer.update();
     #endif
@@ -222,6 +225,7 @@ void initBoard() {
     gpio_config(&default_btn_conf);
 
     // serial console
+    #ifndef CONFIG_M5_BOARD
     uart_config_t uart_config = {
         .baud_rate = 115200,
         .data_bits = UART_DATA_8_BITS,
@@ -239,7 +243,7 @@ void initBoard() {
         printf("Failed to install UART driver: %s\n", esp_err_to_name(err));
         return;
     }
-
+    #endif
 
     #ifdef CONFIG_M5_BOARD
     M5Cardputer.begin(true);

@@ -1,8 +1,8 @@
 #include "sd_card.h"
 
+#ifdef CONFIG_HAS_SDCARD
 static const char *SDCardTAG = "SDCard";
 
-#ifdef CONFIG_HAS_SDCARD
 void initSDCard() {
     esp_err_t ret;
 

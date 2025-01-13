@@ -14,8 +14,8 @@ void pps_timer_callback(TimerHandle_t xTimer) {
     snprintf(buffer, sizeof(buffer), "%d packets/sec", packet_count);
 
     clearScreen();
-    displayText(0, 20, "Attacking...");
-    displayText(0, 30, buffer);
+    displayText(0, 2, "Attacking...");
+    displayText(0, 3, buffer);
 
     packet_count = 0;
 }
