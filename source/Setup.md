@@ -18,7 +18,9 @@ git clone -b v4.4 --single-branch https://github.com/espressif/esp-idf
 
 To send the deauth packet, we need to bypass the `ieee80211_raw_frame_sanity_check()` function, as it blocks frames that start with `0x0C`.
 
-To get around this, we’ll modify the `libnet80211.a` file in esp-idf and give the `ieee80211_raw_frame_sanity_check()` function a `weak` attribute. This way, we can redefine the function later in our firmware.
+To get around this, we’ll modify the `libnet80211.a` file in esp-idf and give the `ieee80211_raw_frame_sanity_check()` function a `weak` attribute. 
+
+This way, we can redefine the function later in our firmware.
 
 [See for more information](https://github.com/Retr0Kr0dy/esp-idf_wsl_bypass)
 
