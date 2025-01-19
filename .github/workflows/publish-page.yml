@@ -2,33 +2,19 @@ name: Deploy Sphinx documentation to Pages
 
 on:
   push:
-    branches: [doc-branch] 
-
-permissions: write-all
+    branches: [doc-branch]
 
 jobs:
   pages:
     runs-on: ubuntu-20.04
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        ref: doc-branch
-
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
-        documentation_path: ./source        
-        requirements_path: ./requirements.txt 
-        publish: false                     
-
-    - name: Disable Jekyll
-      run: touch ${{ steps.deployment.outputs.artifact }}/.nojekyll
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+        documentation_path: ./source
+        requirements_path: ./requirements.txt
+        publish: false
+    - uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_branch: gh-pages            
-        destination_dir: docs               
         publish_dir: ${{ steps.deployment.outputs.artifact }}
