@@ -10,7 +10,7 @@ Simply clone the repo on the correct branch and install it:
 ```sh
 git clone -b v4.4 --single-branch https://github.com/espressif/esp-idf
 ./install.sh
-. ./export.sh # you should use this on any new env or term 
+. ./export.sh # you should use this on any new env or term
 ```
 [See for more information](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/get-started/index.html)
 
