@@ -260,12 +260,9 @@ void initBoard() {
     #ifdef CONFIG_HAS_SDCARD
     initSDCard();    
 
-
-
-            // testSDCard();
-
-
-
+    const char *f2 = ROOT_POINT;
+    s_create_dir(f2);
+    
     #endif
 }
 

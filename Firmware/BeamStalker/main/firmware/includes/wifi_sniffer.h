@@ -8,6 +8,13 @@
 #include "../menu.h"
 #include "wifi.h"
 
+#ifdef CONFIG_HAS_SDCARD
+extern "C" {
+#include "../sd_card.h"
+#include "pcap_serializer.h"
+}
+#endif
+
 #define WIFI_CHANNEL_SWITCH_INTERVAL  (500)
 #define WIFI_CHANNEL_MAX               (13)
 #define MAX_AP_COUNT                   50

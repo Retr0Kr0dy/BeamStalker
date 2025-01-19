@@ -70,13 +70,20 @@ void serialMenu(struct menu Menu, int selector) {
     for (int i = 0; i < Menu.length; i++) {
         if (selector == i) {printf (">");}
         if (selector == i) {printf (" ");}
-        printf ("%d - %s\n", i, Menu.elements[i].name);
+        printf ("%d - %s\t", i, Menu.elements[i].name);
+        if (i % 5 == 0) {
+            printf("\n");
+        }
         if (Menu.elements[i].type == 1) {
             for (int j = 0; j < Menu.elements[i].length; j++) {
-                printf (" -< %d%d: %s\n",i,j, Menu.elements[i].options[j]);
+                printf (" -< %d%d: %s",i,j, Menu.elements[i].options[j]);
+                if (Menu.elements[i].length % 5 == 0) {
+                    printf("\n");
+                }
             }
         }
     }
+    printf("\n");
 }
 
 void drawMenu(struct menu Menu, int selector) {

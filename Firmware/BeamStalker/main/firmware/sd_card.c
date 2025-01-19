@@ -129,39 +129,93 @@ esp_err_t s_list_dir(const char *path) {
     return ESP_OK;
 }
 
-esp_err_t s_create_dir(const char *path) {
-    ESP_LOGI(SDCardTAG, "Attempting to create directory: %s", path);
-    if (mkdir(path, 0777) != 0) {
-        ESP_LOGE(SDCardTAG, "Failed to create directory %s, error: %s", path, strerror(errno));
+esp_err_t s_create_file(char *path) {
+    FILE *f = fopen(path, "wb");
+    if (f == NULL) {
+        printf("Failed to create file %s, error: %s\n", path, strerror(errno));
         return ESP_FAIL;
     }
-    ESP_LOGI(SDCardTAG, "Directory created: %s", path);
+
+    if (fputc('\0', f) == EOF) {
+        printf("Failed to write to the file %s, error: %s\n", path, strerror(errno));
+        fclose(f);
+        return ESP_FAIL;
+    }
+
+    fclose(f);
+
+    printf("File %s created successfully\n", path);
+    return ESP_OK;
+}
+
+esp_err_t s_create_dir(const char *path) {
+    char temp_path[512];
+    strncpy(temp_path, path, sizeof(temp_path));
+    temp_path[sizeof(temp_path) - 1] = '\0';
+
+    char *p = temp_path;
+
+    while ((p = strchr(p, '/')) != NULL) {
+        *p = '\0';
+        struct stat st;
+        if (strlen(temp_path) > 0) {
+            if (stat(temp_path, &st) != 0) {
+                if (mkdir(temp_path, 0755) != 0 && errno != EEXIST) {
+                    ESP_LOGE(SDCardTAG, "Failed to create directory %s, error: %s", temp_path, strerror(errno));
+                    return ESP_FAIL;
+                }
+            } else if (!S_ISDIR(st.st_mode)) {
+                ESP_LOGE(SDCardTAG, "%s exists but is not a directory", temp_path);
+                return ESP_FAIL;
+            }
+        }
+        *p = '/';
+        p++;
+    }
+
+    struct stat st;
+    if (stat(temp_path, &st) != 0) {
+        if (mkdir(temp_path, 0755) != 0 && errno != EEXIST) {
+            ESP_LOGE(SDCardTAG, "Failed to create directory %s, error: %s", temp_path, strerror(errno));
+            return ESP_FAIL;
+        }
+    } else if (!S_ISDIR(st.st_mode)) {
+        ESP_LOGE(SDCardTAG, "%s exists but is not a directory", temp_path);
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(SDCardTAG, "Directory %s is ready", path);
+    return ESP_OK;
+}
+
+esp_err_t s_remove_file(const char *file_path) {
+    if (remove(file_path) != 0) {
+        ESP_LOGE(SDCardTAG, "Failed to remove file %s, error: %s", file_path, strerror(errno));
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(SDCardTAG, "Successfully removed file: %s", file_path);
     return ESP_OK;
 }
 
 esp_err_t s_remove_dir(const char *path) {
     DIR *dir;
     struct dirent *entry;
-    char full_path[512]; 
+    char full_path[512];
 
-    
     dir = opendir(path);
     if (dir == NULL) {
         ESP_LOGE(SDCardTAG, "Failed to open directory %s, error: %s", path, strerror(errno));
         return ESP_FAIL;
     }
 
-    
     while ((entry = readdir(dir)) != NULL) {
-        
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue;
         }
 
-        
         snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
 
-        
         struct stat st;
         if (stat(full_path, &st) != 0) {
             ESP_LOGE(SDCardTAG, "Failed to stat %s, error: %s", full_path, strerror(errno));
@@ -170,7 +224,6 @@ esp_err_t s_remove_dir(const char *path) {
         }
 
         if (S_ISDIR(st.st_mode)) {
-            
             ESP_LOGI(SDCardTAG, "Recursively removing directory: %s", full_path);
             esp_err_t err = s_remove_dir(full_path);
             if (err != ESP_OK) {
@@ -179,20 +232,18 @@ esp_err_t s_remove_dir(const char *path) {
                 return err;
             }
         } else {
-            
             ESP_LOGI(SDCardTAG, "Removing file: %s", full_path);
-            if (remove(full_path) != 0) {
-                ESP_LOGE(SDCardTAG, "Failed to remove file %s, error: %s", full_path, strerror(errno));
+            esp_err_t err = s_remove_file(full_path);
+            if (err != ESP_OK) {
+                ESP_LOGE(SDCardTAG, "Failed to remove file %s", full_path);
                 closedir(dir);
-                return ESP_FAIL;
+                return err;
             }
         }
     }
 
-    
     closedir(dir);
 
-    
     ESP_LOGI(SDCardTAG, "Removing directory: %s", path);
     if (rmdir(path) != 0) {
         ESP_LOGE(SDCardTAG, "Failed to remove directory %s, error: %s", path, strerror(errno));
@@ -209,7 +260,6 @@ void trim_path(char *path) {
         path[len - 1] = '\0';
     }
 }
-
 
 bool is_directory_empty(const char *path) {
     DIR *dir = opendir(path);
@@ -239,6 +289,7 @@ bool is_directory_empty(const char *path) {
     closedir(dir);
     return true;  
 }
+
 esp_err_t s_rename_dir(const char *old_path, const char *new_path) {
     
     char old_path_copy[512];
@@ -266,6 +317,7 @@ esp_err_t s_rename_dir(const char *old_path, const char *new_path) {
     ESP_LOGI(SDCardTAG, "Directory renamed from %s to %s", old_path_copy, new_path_copy);
     return ESP_OK;
 }
+
 void s_read_bytes_from_file(const char *filename, uint8_t *buffer, size_t size) {
     
     if (buffer == NULL) {
@@ -291,23 +343,43 @@ void s_read_bytes_from_file(const char *filename, uint8_t *buffer, size_t size) 
     fclose(file);
 }
 
-esp_err_t s_write_bytes_to_file(const char *path, const uint8_t *data, size_t size) {
+esp_err_t s_write_bytes_to_file(char *path, const uint8_t *data, size_t size) {
     ESP_LOGI(SDCardTAG, "Writing bytes to file %s", path);
+
+    char dir_path[512];
+    strncpy(dir_path, path, sizeof(dir_path));
+    char *last_slash = strrchr(dir_path, '/');
+    if (last_slash != NULL) {
+        *last_slash = '\0';
+        struct stat st;
+        if (stat(dir_path, &st) != 0 || !S_ISDIR(st.st_mode)) {
+            ESP_LOGE(SDCardTAG, "Directory %s is not accessible or does not exist", dir_path);
+            return ESP_FAIL;
+        }
+    }
+
     FILE *f = fopen(path, "wb");
     if (f == NULL) {
-        ESP_LOGE(SDCardTAG, "Failed to open file for writing");
+        ESP_LOGE(SDCardTAG, "Failed to open file %s for writing, error: %s (%d)", path, strerror(errno), errno);
         return ESP_FAIL;
     }
+
     size_t bytes_written = fwrite(data, 1, size, f);
     if (bytes_written != size) {
-        ESP_LOGE(SDCardTAG, "Failed to write specified number of bytes");
+        ESP_LOGE(SDCardTAG, "Failed to write specified number of bytes to %s, wrote %zu of %zu bytes", path, bytes_written, size);
         fclose(f);
         return ESP_FAIL;
     }
-    fclose(f);
-    ESP_LOGI(SDCardTAG, "Wrote %zu bytes to file", bytes_written);
+
+    if (fclose(f) != 0) {
+        ESP_LOGE(SDCardTAG, "Failed to close file %s after writing, error: %s", path, strerror(errno));
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(SDCardTAG, "Successfully wrote %zu bytes to file %s", bytes_written, path);
     return ESP_OK;
 }
+
 long long get_file_size(const char *filename) {
     struct stat file_stat;
     
@@ -337,29 +409,5 @@ char *get_full_path(const char *base, const char *filename) {
     printf ("%s\n",full_path);
 
     return full_path;
-}
-
-void testSDCard() {
-    const char *f1 = MOUNT_POINT"/test_dir";
-    const char *f1f0 = MOUNT_POINT"/test_dir/s.txt";
-    const char *f1f1 = MOUNT_POINT"/test_dir/t.txt";
-    const char *f1f2 = MOUNT_POINT"/test_dir/b.bin";
-    const char *f2 = MOUNT_POINT"/second_dir/";
-
-    s_remove_dir(f1);
-
-    s_create_dir(f1);
-    s_write_file(f1f0, "Hello, World!");
-    s_rename_dir(f1f0, f1f1);
-    s_read_file(f1f1);
-    s_list_dir(f1);
-    
-    uint8_t data_to_write[] = {0x01, 0x02, 0x03, 0x04};
-    s_write_bytes_to_file(f1f2, data_to_write, sizeof(data_to_write));
-    
-    uint8_t buffer[4] = {0};
-    s_read_bytes_from_file(f1f2, buffer, sizeof(buffer));
-    
-    s_rename_dir(f1, f2);
 }
 #endif

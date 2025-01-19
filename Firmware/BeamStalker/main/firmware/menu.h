@@ -7,7 +7,6 @@
 #define MAX_NAME_LENGTH 14
 
 struct item {
-//    const char *name;
     char name[MAX_NAME_LENGTH];
     int type; // 0: Has options, 1: No options
     int length;
