@@ -4,6 +4,8 @@ on:
   push:
     branches: [doc-branch]
 
+permissions: write-all
+
 jobs:
   pages:
     runs-on: ubuntu-20.04
