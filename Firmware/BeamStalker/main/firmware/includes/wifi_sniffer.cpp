@@ -1,8 +1,10 @@
 #include "wifi_sniffer.h"
 
+#ifdef CONFIG_HAS_SDCARD
 int counter = 0;
 char current_filename[28];
 const char *base_path = ROOT_POINT"/WISNIF";
+#endif
 
 void sniff_pps_timer_callback(TimerHandle_t xTimer) {
     char pc_buffer[32];
@@ -95,6 +97,7 @@ void sniffer_log(const wifi_promiscuous_pkt_t *ppkt) {
 
     sniff_packet_count++;
 
+    #ifdef CONFIG_HAS_SDCARD
     if (counter > 10) {
         s_list_dir(base_path);
 
@@ -118,14 +121,13 @@ void sniffer_log(const wifi_promiscuous_pkt_t *ppkt) {
             printf("Failed to write PCAP file\n");
         }
 
-        // pcap_serializer_deinit();
-        // pcap_serializer_init();
         counter = 0;
     }
 
     pcap_serializer_append_frame(ppkt->payload, ppkt->rx_ctrl.sig_len, ppkt->rx_ctrl.timestamp);
     counter++;
 
+    #endif
 
     printf("frame_ctrl: %04x, duration_id: %u, "
         "addr1: %02x:%02x:%02x:%02x:%02x:%02x, "
@@ -222,13 +224,14 @@ int sniff(int duration, uint16_t *type_filter, int verbose) {
     char timestamp[20];
     strftime(timestamp, sizeof(timestamp), "%S", &timeinfo);
 
+    #ifdef CONFIG_HAS_SDCARD
     pcap_serializer_init();
     s_create_dir(base_path);
     s_list_dir(base_path);
-
     snprintf(current_filename, sizeof(current_filename), "%s/%s.pcap", base_path, timestamp);
     s_create_file(current_filename);
-
+    #endif
+    
     stop_wifi();
     vTaskDelay(pdMS_TO_TICKS(500));
     wifi_sniffer_init();
@@ -255,7 +258,9 @@ int sniff(int duration, uint16_t *type_filter, int verbose) {
         sniffer_verbose = 0;
     }
 
+    #ifdef CONFIG_HAS_SDCARD
     pcap_serializer_deinit();
+    #endif
 
     return 0;
 }
