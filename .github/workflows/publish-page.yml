@@ -10,6 +10,10 @@ jobs:
   pages:
     runs-on: ubuntu-20.04
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        ref: doc-branch
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
@@ -18,5 +22,7 @@ jobs:
         publish: false
     - uses: peaceiris/actions-gh-pages@v3
       with:
+        publish_branch: gh-pages
+        #destination_dir: docs 
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ${{ steps.deployment.outputs.artifact }}
