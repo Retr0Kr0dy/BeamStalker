@@ -17,5 +17,44 @@ config HAS_SSD1306_DISPLAY
     default n
     help
         Specify if board is using SSD1306 libs.
-        
+                        
+config HAS_SDCARD
+    bool "Has sd card"
+    default n
+    help
+        Specify if board has sd card.
+       
+# SD card specific        
+menu "SD CARD SPI Configuration"
+
+    config FORMAT_IF_MOUNT_FAILED
+        bool "Format the card if mount failed"
+        default n
+        help
+            If this config item is set, format_if_mount_failed will be set to true and the card will be formatted if
+            the mount has failed.
+
+    config FORMAT_SD_CARD
+        bool "Format the card as a part of the example"
+        default n
+        help
+            If this config item is set, the card will be formatted as a part of the example.
+
+    config PIN_MOSI
+        int "MOSI GPIO number"
+        default 14
+    config PIN_MISO
+        int "MISO GPIO number"
+        default 39
+
+    config PIN_CLK
+        int "CLK GPIO number"
+        default 40
+
+    config PIN_CS
+        int "CS GPIO number"
+        default 12
+endmenu
+        # SD card end
+
 endmenu

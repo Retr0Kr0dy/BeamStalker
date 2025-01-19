@@ -7,7 +7,6 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "time.h"
-#include "driver/gpio.h"
 
 #include <string>
 
@@ -23,6 +22,12 @@
 
 #ifdef CONFIG_HELTEC_BOARD
 #include "ssd1306.h"
+#endif
+
+#ifdef CONFIG_HAS_SDCARD
+extern "C" {
+#include "sd_card.h"
+}
 #endif
 
 // Temp fix for missing M5Cardputer.h

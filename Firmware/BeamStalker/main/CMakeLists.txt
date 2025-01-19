@@ -1,8 +1,11 @@
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB_RECURSE APP_SOURCES
+    "${SOURCE_DIR}/firmware/*.c" 
     "${SOURCE_DIR}/firmware/*.cpp" 
+    "${SOURCE_DIR}/firmware/apps/*.c" 
     "${SOURCE_DIR}/firmware/apps/*.cpp" 
+    "${SOURCE_DIR}/firmware/includes/*.c"
     "${SOURCE_DIR}/firmware/includes/*.cpp"
 )
 

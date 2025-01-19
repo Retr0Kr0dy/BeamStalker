@@ -1,51 +1,48 @@
 # BeamStalker
 
-BeamStalker is firmware for microcontrollers aimed at RF experimentation. No profit motive here—just a project for those who want to mess around with RF tech and hack their way through.
+BeamStalker is open-source firmware for esp based boards designed for RF experimentation, encouraging collaboration and ethical exploration. No profit motive here—just a project for those who want to mess around with RF tech and hack their way through.
 
 Open-source means you can poke around, modify, and make it your own. It’s all about collaboration and sharing your findings with the community. Explore, experiment, and push boundaries, but keep it ethical—don’t bring any malicious nonsense into it. 
 
 Join in, share your findings, and let’s see what we can create together. Happy hacking!
 
+##### Knowledge should be free 🏴‍☠️
 
-### Currently 2 firmware version :
+![](https://github.com/Retr0Kr0dy/BeamStalker/blob/v0.2/assets/banner-00.png)
 
-- [v0.1](https://github.com/Retr0Kr0dy/BeamStalker/tree/v0.1) for ESP32 common.
+## Installation
 
-- [v0.2](https://github.com/Retr0Kr0dy/BeamStalker/tree/v0.2) for M5Cardputer.
+Currently you have two choices, either you get the latest bin file for you board in the [release section](https://github.com/Retr0Kr0dy/BeamStalker/releases) and flash it to your board, or you can build the project from source using esp-idf v4.4 (see [build](https://github.com/Retr0Kr0dy/BeamStalker/wiki/Build)).
 
+> [!NOTE]
+> Work gracefully with the [M5Launcher project](https://github.com/bmorcelli/M5Stick-Launcher).
 
-### For M5Cardputer
+## Usage
 
-Please use esp-idf version 4.4 as it's currently the only one where `M5.Power.getBatteryLevel()` is working, else on esp-idf version 5, lib doesn't seem to work, still investigating.
+You got 3 main way to control the firmware :
 
-#### Usage
+- Main one, using custom gpio, you will need to have a board with button, but it's the intend way of usage.
+- Second one, is using the main button on esp (short press, long press, ...) but it's currently buggy.
+- Third one, is using the serial console, but this imply that you have a phone or computer nearby to control.
 
-Using esp-idf 4.4 :
+For more specific usage docs, go check the [wiki](https://github.com/Retr0Kr0dy/BeamStalker/wiki).
 
-```sh
-cd firmwares/BeamStalker # go to the project directory
-idf.py add-dependency "m5stack/m5unified" # Required for M5Cardputer lib
-idf.py set-target esp32s3 # For M5 StampS3
-idf.py menuconfig
-```
+## Features
 
-In menuconfig, we need to :
+|Type|Name|Description|Status|
+|-|-|-|-|
+|Wifi|BeaconSpam|Spam nearby client with dumb wifi AP|Fully implemented|
+|Wifi|Deauther|Spam either boadcast, or targeted client with deauth frame|Fully implemented|
+|Wifi|WifiSniffer|Sniff 802.11 frame accroding to a given filter|Implementing|
+|BLE|BleSpam|Spam nearby client with ble adv frames|Fully implemented|
+|RF|RecordReplay|Record and replay subghz frame|To do|
+|RF|TPMS|Forge and patch tpms frame|To do|
 
-- 8MB flash size (Main -> Serial flasher config)
-- Use custom partition.csv (Main -> Partition Table -> Partition Table)
-- Enable Bluetooth (Main -> Component config -> Bluetooth)
-- Enable BLE 4.2 features (Main -> Component config -> Bluetooth -> Bluedroid Options)
+## Supported boards
 
-Then you can build the project : 
-
-```sh
-idf.py build
-```
-
-Can work with the [M5Launcher project](https://github.com/bmorcelli/M5Stick-Launcher)
-
-> [!IMPORTANT]
-> Needed for the wsl bypass to work. ([See here](https://github.com/Retr0Kr0dy/esp-idf_wsl_bypass))
+- [esp32](https://www.espressif.com/en/products/socs/esp32)
+- [M5Cardputer](https://shop.m5stack.com/products/m5stack-cardputer-kit-w-m5stamps3)
+- [HeltecV3](https://heltec.org/project/wifi-lora-32-v3/)
 
 ---
 *Made with fun by akpalanaza*

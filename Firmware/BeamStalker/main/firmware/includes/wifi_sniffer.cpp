@@ -1,5 +1,11 @@
 #include "wifi_sniffer.h"
 
+#ifdef CONFIG_HAS_SDCARD
+int counter = 0;
+char current_filename[28];
+const char *base_path = ROOT_POINT"/WISNIF";
+#endif
+
 void sniff_pps_timer_callback(TimerHandle_t xTimer) {
     char pc_buffer[32];
     snprintf(pc_buffer, sizeof(pc_buffer), "Packet: %d", sniff_packet_count);
@@ -85,8 +91,43 @@ void add_ap_if_new(const uint8_t *ap_mac) {
     }
 }
 
-void sniffer_log(const wifi_ieee80211_mac_hdr_t *hdr) {
+void sniffer_log(const wifi_promiscuous_pkt_t *ppkt) {
+    const wifi_ieee80211_packet_t *ipkt = (wifi_ieee80211_packet_t *)ppkt->payload;
+    const wifi_ieee80211_mac_hdr_t *hdr = &ipkt->hdr;
+
     sniff_packet_count++;
+
+    #ifdef CONFIG_HAS_SDCARD
+    if (counter > 10) {
+        s_list_dir(base_path);
+
+        uint8_t *pcap_buffer = pcap_serializer_get_buffer();
+        unsigned pcap_size = pcap_serializer_get_size();
+
+        if (pcap_buffer == NULL) {
+            printf("PCAP buffer is NULL\n");
+            return;
+        }
+
+        if (pcap_size == 0) {
+            printf("PCAP buffer size is 0\n");
+            return;
+        }
+
+        printf("Writing %u bytes to file: %s\n", pcap_size, current_filename);
+
+        esp_err_t err = s_write_bytes_to_file(current_filename, pcap_buffer, pcap_size);
+        if (err != ESP_OK) {
+            printf("Failed to write PCAP file\n");
+        }
+
+        counter = 0;
+    }
+
+    pcap_serializer_append_frame(ppkt->payload, ppkt->rx_ctrl.sig_len, ppkt->rx_ctrl.timestamp);
+    counter++;
+
+    #endif
 
     printf("frame_ctrl: %04x, duration_id: %u, "
         "addr1: %02x:%02x:%02x:%02x:%02x:%02x, "
@@ -115,11 +156,11 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type) {
 
     if (sniffer_verbose) {
         if (selected_t_filter == NULL) {
-            sniffer_log(hdr);
+            sniffer_log(ppkt);
         } else {
             for (int i = 0; i < selected_t_filter_count; i ++) {
                 if (fc == selected_t_filter[i]) {
-                    sniffer_log(hdr);
+                    sniffer_log(ppkt);
                 }
             }
         }
@@ -176,6 +217,21 @@ int sniff(int duration, uint16_t *type_filter, int verbose) {
     selected_t_filter = type_filter;
     sniffer_verbose = verbose;
 
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    char timestamp[20];
+    strftime(timestamp, sizeof(timestamp), "%S", &timeinfo);
+
+    #ifdef CONFIG_HAS_SDCARD
+    pcap_serializer_init();
+    s_create_dir(base_path);
+    s_list_dir(base_path);
+    snprintf(current_filename, sizeof(current_filename), "%s/%s.pcap", base_path, timestamp);
+    s_create_file(current_filename);
+    #endif
+    
     stop_wifi();
     vTaskDelay(pdMS_TO_TICKS(500));
     wifi_sniffer_init();
@@ -201,6 +257,10 @@ int sniff(int duration, uint16_t *type_filter, int verbose) {
     if (verbose) {
         sniffer_verbose = 0;
     }
+
+    #ifdef CONFIG_HAS_SDCARD
+    pcap_serializer_deinit();
+    #endif
 
     return 0;
 }
