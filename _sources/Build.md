@@ -3,7 +3,6 @@ This project is designed to be built on any ESP32 chip (adding support for more 
 
 Once you have successfully setup your IDE, you can build the project.
 
-> [!IMPORTANT]
 > For deauth to work you to do the wsl bypass first. ([See here](https://github.com/Retr0Kr0dy/esp-idf_wsl_bypass))
 
 Clone the project:
