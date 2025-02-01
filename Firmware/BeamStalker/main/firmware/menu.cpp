@@ -71,9 +71,6 @@ void serialMenu(struct menu Menu, int selector) {
         if (selector == i) {printf (">");}
         if (selector == i) {printf (" ");}
         printf ("%d - %s\t", i, Menu.elements[i].name);
-        if (i % 5 == 0) {
-            printf("\n");
-        }
         if (Menu.elements[i].type == 1) {
             for (int j = 0; j < Menu.elements[i].length; j++) {
                 printf (" -< %d%d: %s",i,j, Menu.elements[i].options[j]);
