@@ -20,6 +20,32 @@ void generate_random_address(esp_bd_addr_t addr) {
     }
 }
 
+void send_adv_with_name(esp_ble_adv_params_t adv_params, const char *device_name) {
+    uint8_t raw_adv_data[31];
+    memset(raw_adv_data, 0, sizeof(raw_adv_data));
+
+    uint8_t adv_index = 0;
+
+    // Flags: 0x02 -> General Discoverable Mode, BR/EDR Not Supported
+    raw_adv_data[adv_index++] = 0x02; // Length
+    raw_adv_data[adv_index++] = 0x01; // Type: Flags
+    raw_adv_data[adv_index++] = 0x06; // Value: General Discoverable, No BR/EDR
+
+    // Add Complete Local Name (0x09)
+    size_t name_len = strlen(device_name);
+    if (name_len > 28) { 
+        name_len = 28; // Ensure we do not exceed the 31-byte limit
+    }
+
+    raw_adv_data[adv_index++] = name_len + 1; // Length (name size + type byte)
+    raw_adv_data[adv_index++] = 0x09;         // Type: Complete Local Name
+    memcpy(&raw_adv_data[adv_index], device_name, name_len);
+    adv_index += name_len;
+
+    esp_ble_gap_config_adv_data_raw(raw_adv_data, adv_index);
+    esp_ble_gap_start_advertising(&adv_params);
+}
+
 void send_adv(esp_ble_adv_params_t adv_params, uint8_t *raw_adv_data, size_t raw_adv_data_len) {
     for (size_t i = 0; i < raw_adv_data_len; i++) {
         printf("0x%02X ", raw_adv_data[i]);
@@ -53,6 +79,7 @@ void start_advertising(EBLEPayloadType type) {
 
     uint8_t *raw_adv_data = NULL;
     size_t raw_adv_data_len = 0;
+    delayMilliseconds = 1000;
 
     switch (type) {
         case DEVICE_APPLE: {
@@ -71,8 +98,7 @@ void start_advertising(EBLEPayloadType type) {
             send_adv(adv_params, raw_adv_data, raw_adv_data_len);
 
             break;
-        }
-        case DEVICE_SAMSUNG: {
+        } case DEVICE_SAMSUNG: {
             raw_adv_data = SAMSUNG_MODELS[esp_random() % SAMSUNG_COUNT];
             raw_adv_data[14] = (uint8_t)esp_random() % 256;            
 
@@ -81,8 +107,7 @@ void start_advertising(EBLEPayloadType type) {
             send_adv(adv_params, raw_adv_data, raw_adv_data_len);            
 
             break;
-        }
-        case DEVICE_GOOGLE: {
+        } case DEVICE_GOOGLE: {
             static uint8_t google_data[] = {
                 0x02, 0x01, 0x02,  // Length: 2, Type: Flags, Value: LE General Discoverable Mode and BR/EDR Not Supported
                 0x02, 0x0A, 0xEB,  // Length: 2, Type: TX Power Level, Value: -21 dBm (0xEB)
@@ -103,8 +128,25 @@ void start_advertising(EBLEPayloadType type) {
             send_adv(adv_params, raw_adv_data, raw_adv_data_len);
 
             break;
-        }
-        case DEVICE_MICROSOFT: {
+        } case DEVICE_MICROSOFT: {
+            break;
+        } case DEVICE_NAME: {
+            adv_params = {
+                .adv_int_min = 0x20,                        // Minimum advertising interval
+                .adv_int_max = 0x40,                        // Maximum advertising interval
+                .adv_type = ADV_TYPE_IND,                   // Advertising type
+                .own_addr_type = BLE_ADDR_TYPE_RANDOM,      // Own address type
+                .peer_addr = {0},                           // Peer address (initialized to zero)
+                .peer_addr_type = BLE_ADDR_TYPE_RANDOM,    // Peer address type
+                .channel_map = ADV_CHNL_ALL,                // Channel map
+                .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY // Allow any scan and connection
+            };
+
+            const char *adv_name = generate_random_name();
+            delayMilliseconds = 20;
+
+            send_adv_with_name(adv_params, adv_name);
+
             break;
         }
     }
@@ -144,14 +186,15 @@ int BLESpam() {
 
     strcpy(Menu.elements[0].name, "Devices");
     Menu.elements[0].type = 0;
-    Menu.elements[0].length = 5;
+    Menu.elements[0].length = 6;
     Menu.elements[0].selector = 0;
     Menu.elements[0].options[0] = "APPLE";
     Menu.elements[0].options[1] = "SAMSUNG";
     Menu.elements[0].options[2] = "GOOGLE";
-    Menu.elements[0].options[3] = "MICROSOFT";
-    Menu.elements[0].options[4] = "ALL";
-    Menu.elements[0].options[5] = NULL;
+    Menu.elements[0].options[3] = "MICROSOFT"; // not implemented
+    Menu.elements[0].options[4] = "NAME";
+    Menu.elements[0].options[5] = "ALL"; // not implemented
+    Menu.elements[0].options[6] = NULL;
 
 
     strcpy(Menu.elements[1].name, "Start attack");
@@ -203,8 +246,8 @@ int BLESpam() {
 
                         displayText(0, 0, "Spamming!!!", TFT_WHITE);
 
-                        if (Menu.elements[Selector].selector == 4) { // all
-                            choice = static_cast<EBLEPayloadType>(esp_random() % 4);
+                        if (Menu.elements[Selector].selector == 5) { // all
+                            choice = static_cast<EBLEPayloadType>(esp_random() % 5);
                         } else {
                             choice = (EBLEPayloadType)Menu.elements[0].selector;
                         }

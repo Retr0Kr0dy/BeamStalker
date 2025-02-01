@@ -29,7 +29,8 @@ typedef enum {
     DEVICE_APPLE,
     DEVICE_SAMSUNG,
     DEVICE_GOOGLE,
-    DEVICE_MICROSOFT
+    DEVICE_MICROSOFT,
+    DEVICE_NAME
 } EBLEPayloadType;
 
 uint32_t delayMilliseconds = 1000;
