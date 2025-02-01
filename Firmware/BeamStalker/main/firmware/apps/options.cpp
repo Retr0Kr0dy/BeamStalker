@@ -53,7 +53,7 @@ int APP_Options() {
                 switch (Selector) {
                     case 0:
                         displayText(0, 0, "Current Firmware:");
-                        displayText(0, 20, VERSION);
+                        displayText(0, 2, VERSION);
                         vTaskDelay(pdMS_TO_TICKS(200));
                         wait = 1;
                         while (wait) {
@@ -80,8 +80,8 @@ int APP_Options() {
                         clearScreen();
                         break;
                     case 2:
-                        displayText(0, 40, "Good job,");
-                        displayText(0, 60, "you develop");
+                        displayText(0, 4, "Good job,");
+                        displayText(0, 6, "you develop");
                         vTaskDelay(pdMS_TO_TICKS(200));
                         wait = 1;
                         while (wait) {
