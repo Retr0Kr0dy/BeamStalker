@@ -62,6 +62,12 @@ uint8_t IOS_SHORT_MODELS[][25] = {
 
 #define IOS_SHORT_COUNT (sizeof(IOS_SHORT_MODELS) / sizeof(IOS_SHORT_MODELS[0]))
 
+uint8_t SAMSUNG_MODELS[][15] = {
+    { 0x0E, 0xFF, 0x75, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x01, 0xFF, 0x00, 0x00, 0x43, 0x00 }, // WatchPair
+};
+
+#define SAMSUNG_COUNT (sizeof(SAMSUNG_MODELS) / sizeof(SAMSUNG_MODELS[0]))
+
 uint32_t GOOGLE_MODELS[] = {
     0x92BBBD, // "Pixel Buds"
     0x000006, // "Google Pixel Buds"

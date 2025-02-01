@@ -73,6 +73,12 @@ void start_advertising(EBLEPayloadType type) {
             break;
         }
         case DEVICE_SAMSUNG: {
+            raw_adv_data = SAMSUNG_MODELS[esp_random() % SAMSUNG_COUNT];
+            raw_adv_data[14] = (uint8_t)esp_random() % 256;            
+
+            raw_adv_data_len = 15;
+
+            send_adv(adv_params, raw_adv_data, raw_adv_data_len);            
 
             break;
         }
@@ -141,9 +147,9 @@ int BLESpam() {
     Menu.elements[0].length = 5;
     Menu.elements[0].selector = 0;
     Menu.elements[0].options[0] = "APPLE";
-    Menu.elements[0].options[1] = "SAMSU";
-    Menu.elements[0].options[2] = "GOOGL";
-    Menu.elements[0].options[3] = "MICRO";
+    Menu.elements[0].options[1] = "SAMSUNG";
+    Menu.elements[0].options[2] = "GOOGLE";
+    Menu.elements[0].options[3] = "MICROSOFT";
     Menu.elements[0].options[4] = "ALL";
     Menu.elements[0].options[5] = NULL;
 
@@ -198,7 +204,6 @@ int BLESpam() {
                         displayText(0, 0, "Spamming!!!", TFT_WHITE);
 
                         if (Menu.elements[Selector].selector == 4) { // all
-                            // choice = (EBLEPayloadType)esp_random() % 4;
                             choice = static_cast<EBLEPayloadType>(esp_random() % 4);
                         } else {
                             choice = (EBLEPayloadType)Menu.elements[0].selector;
