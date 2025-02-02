@@ -99,12 +99,16 @@ int Deauther() {
 
 
                         if (!aps) {
-                            printf("No access points Selected.\n");
-                            return -1;
+                            LogError("No access points Selected.");
+                            break;
                         }
 
                         break;
-                    case 1:
+                    case 1: // select client
+                        if (!aps) {
+                            LogError("Need to select AP first.");
+                            break;
+                        }
                         char buffer[100]; // Assume this is large enough to hold your final string.
                         sprintf(buffer, "Sniffing clients...\nFor %d selected APs\nDuring 10s", aps_count);
                         printf("%s\n", buffer); // Print the string to verify
@@ -120,8 +124,8 @@ int Deauther() {
                         // }
 
                         if (!clients) {
-                            printf("No access points Selected.\n");
-                            return -1;
+                            LogError("No access points Selected.\n");
+                            break;
                         }
 
                         break;

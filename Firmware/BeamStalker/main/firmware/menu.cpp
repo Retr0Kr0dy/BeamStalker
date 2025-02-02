@@ -71,9 +71,6 @@ void serialMenu(struct menu Menu, int selector) {
         if (selector == i) {printf (">");}
         if (selector == i) {printf (" ");}
         printf ("%d - %s\t", i, Menu.elements[i].name);
-        if (i % 5 == 0) {
-            printf("\n");
-        }
         if (Menu.elements[i].type == 1) {
             for (int j = 0; j < Menu.elements[i].length; j++) {
                 printf (" -< %d%d: %s",i,j, Menu.elements[i].options[j]);
@@ -85,6 +82,7 @@ void serialMenu(struct menu Menu, int selector) {
     }
     printf("\n");
 }
+
 
 void drawMenu(struct menu Menu, int selector) {
     serialMenu(Menu, selector);
@@ -100,11 +98,32 @@ void drawMenu(struct menu Menu, int selector) {
     #endif
     displayText(0, 0, fullMenuName, TFT_BLACK);
 
-    int j = 1;
-    char element_str[50];
+    int start_index = 0;
+    int menu_length = Menu.length;
+    int display_size = (menu_length < 7) ? menu_length : 7;
+    int highlight_position = selector;
 
-    for (int i = -3; i <= 3; i++) {
-        struct item element = Menu.elements[intChecker(selector+i, Menu.length)];
+    if (menu_length > display_size) {
+        if (selector < display_size - 1) {
+            start_index = 0;
+        } 
+        else if (selector >= menu_length - 1) {
+            start_index = menu_length - display_size;
+        } 
+        else {
+            start_index = selector - (display_size - 1);
+        }
+
+        highlight_position = selector - start_index;
+    } 
+    else {
+        highlight_position = selector;
+    }
+    
+    char element_str[50];
+    for (int i = 0; i < display_size && (start_index + i) < menu_length; i++) { 
+        int index = start_index + i; 
+        struct item element = Menu.elements[index];
 
         if (element.type == 0) {
             #ifdef CONFIG_M5_BOARD
@@ -128,7 +147,7 @@ void drawMenu(struct menu Menu, int selector) {
                 cropped_element[strlen(element.name)] = '\0';
             }
 
-            if (i == 0) {
+            if (i == highlight_position) {
                 snprintf(element_str, sizeof(element_str), "%-*s <%-*s>", max_element, cropped_element, max_value, element.options[intChecker(element.selector, element.length)]);
             } else {
                 snprintf(element_str, sizeof(element_str), "%-*s  %-*s ", max_element, cropped_element, max_value, element.options[intChecker(element.selector, element.length)]);
@@ -137,18 +156,17 @@ void drawMenu(struct menu Menu, int selector) {
             snprintf (element_str, sizeof(element_str), "%s",element.name);
         }
 
-        if (i == 0) {
+        if (i == highlight_position) {
             #ifdef CONFIG_M5_BOARD
-            displayText(0, j, element_str, TFT_CYAN);
+            displayText(0, i+1, element_str, TFT_CYAN);
             #elif CONFIG_HELTEC_BOARD
             element_str[0] = '>';
-            displayText(0, j, element_str, TFT_CYAN);
+            displayText(0, i+1, element_str, TFT_CYAN);
             #else
-            displayText(0, j, element_str, TFT_CYAN);
+            displayText(0, i+1, element_str, TFT_CYAN);
             #endif
         } else {
-            displayText(0, j, element_str, TFT_WHITE);
+            displayText(0, i+1, element_str, TFT_WHITE);
         }
-        j++;
     }
 }
