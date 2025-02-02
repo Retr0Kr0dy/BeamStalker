@@ -301,45 +301,13 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wifi">Wifi</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#beacon-spam">Beacon Spam</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-work">How it work</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-use">How to use</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#args">Args</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deauther">Deauther</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Description</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">How it work</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">How to use</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Args</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wifi-sniffer">Wifi Sniffer</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Description</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">How it work</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">How to use</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Args</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#beacon-spam">Beacon Spam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deauther">Deauther</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wifi-sniffer">Wifi Sniffer</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bluetooth">Bluetooth</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ble-spam">BLE Spam</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Description</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">How it work</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">How to use</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Args</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ble-spam">BLE Spam</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subghz-upcoming">SubGhz (upcoming)</a></li>
@@ -380,35 +348,24 @@ document.write(`
 <h2>Wifi<a class="headerlink" href="#wifi" title="Link to this heading">#</a></h2>
 <section id="beacon-spam">
 <h3>Beacon Spam<a class="headerlink" href="#beacon-spam" title="Link to this heading">#</a></h3>
-<section id="description">
-<h4>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h4>
+<p><strong>Description :</strong></p>
 <p>This app simply spam nearby user with AP beacon, thus filling their wifi scanner.</p>
-</section>
-<section id="how-it-work">
-<h4>How it work<a class="headerlink" href="#how-it-work" title="Link to this heading">#</a></h4>
+<p><strong>How it work :</strong></p>
 <p>It either generate a random BSSID with a given charset, or use a specific string and spam <a class="reference external" href="https://en.wikipedia.org/wiki/Beacon_frame">Beacon frame</a></p>
-</section>
-<section id="how-to-use">
-<h4>How to use<a class="headerlink" href="#how-to-use" title="Link to this heading">#</a></h4>
-<section id="args">
-<h5>Args<a class="headerlink" href="#args" title="Link to this heading">#</a></h5>
+<p><strong>How to use :</strong></p>
+<p><em><strong>Arguments</strong></em></p>
 <ul class="simple">
 <li><p><strong>Charset</strong>: Hiragana (あいう), Katakana (アイウ), Cyrillic (ЖБЮ)</p></li>
 <li><p><strong>Start attack</strong></p></li>
 </ul>
 </section>
-</section>
-</section>
 <section id="deauther">
 <h3>Deauther<a class="headerlink" href="#deauther" title="Link to this heading">#</a></h3>
-<section id="id1">
-<h4>Description<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<p><strong>Description :</strong></p>
 <p>This app scan for AP, prompt you to select AP and client and then spam forged deauth frame.</p>
-</section>
-<section id="id2">
-<h4>How it work<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
+<p><strong>How it work :</strong></p>
 <p>First the AP scan, it’s a simple esp wifi scan (dindn’t dig too much to see how it work but it’s able to get the AP name from Beacon, which i didn’t tried).</p>
-<p>Then the client scan, it uses the wifi sniffer to catch client for given AP by sniffing frame and check if frame addresses contain both the client and the AP.</p>
+<p>Then the client scan, it uses the wifi sniffer to catch client for a given AP by sniffing frame and checking if the frame addresses contain both the client and the AP.</p>
 <div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_broadcast</span><span class="p">(</span><span class="n">hdr</span><span class="o">-&gt;</span><span class="n">addr1</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">is_broadcast</span><span class="p">(</span><span class="n">hdr</span><span class="o">-&gt;</span><span class="n">addr2</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">is_broadcast</span><span class="p">(</span><span class="n">hdr</span><span class="o">-&gt;</span><span class="n">addr3</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// For all frames, check if an AP is involved</span>
@@ -435,64 +392,47 @@ document.write(`
 <span class="w">    </span><span class="p">}</span>
 </pre></div>
 </div>
-<p>This method can be enhanced in the future.</p>
-</section>
-<section id="id3">
-<h4>How to use<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
-<section id="id4">
-<h5>Args<a class="headerlink" href="#id4" title="Link to this heading">#</a></h5>
+<p>This method will be enhanced in the future.</p>
+<p><strong>How to use :</strong></p>
+<p><em><strong>Arguments</strong></em></p>
 <ul class="simple">
 <li><p><strong>AP mac</strong>: Scan and select with <a class="reference external" href="https://github.com/Retr0Kr0dy/BeamStalker/blob/main/Firmware/BeamStalker/main/firmware/includes/wifi.cpp#L127">select_wifi_menu</a></p></li>
 <li><p><strong>Client mac</strong>:  Scan and select with <a class="reference external" href="https://github.com/Retr0Kr0dy/BeamStalker/blob/main/Firmware/BeamStalker/main/firmware/includes/wifi_sniffer.cpp#L158">select_client_menu</a></p></li>
 <li><p><strong>Start attack</strong></p></li>
 </ul>
 </section>
-</section>
-</section>
 <section id="wifi-sniffer">
 <h3>Wifi Sniffer<a class="headerlink" href="#wifi-sniffer" title="Link to this heading">#</a></h3>
-<section id="id5">
-<h4>Description<a class="headerlink" href="#id5" title="Link to this heading">#</a></h4>
+<p><strong>Description :</strong></p>
 <p>This app is used to sniff and capture wifi traffic, currently you can only select frame control filter and print packet to serial console, in the future, we should be able to save to pcap file on sdcard</p>
-</section>
-<section id="id6">
-<h4>How it work<a class="headerlink" href="#id6" title="Link to this heading">#</a></h4>
+<p><strong>How it work :</strong></p>
 <p>it sniff packet, check if frame match filter, if so, it log/save the frame</p>
-</section>
-<section id="id7">
-<h4>How to use<a class="headerlink" href="#id7" title="Link to this heading">#</a></h4>
-<section id="id8">
-<h5>Args<a class="headerlink" href="#id8" title="Link to this heading">#</a></h5>
+<p><strong>How to use :</strong></p>
+<p><em><strong>Arguments</strong></em></p>
 <ul class="simple">
 <li><p><strong>Filter</strong>: frame control value (<a class="reference external" href="https://en.wikipedia.org/wiki/802.11_frame_types">See here</a>)</p></li>
 <li><p><strong>Start sniffing</strong></p></li>
 </ul>
 </section>
 </section>
-</section>
-</section>
 <section id="bluetooth">
 <h2>Bluetooth<a class="headerlink" href="#bluetooth" title="Link to this heading">#</a></h2>
 <section id="ble-spam">
 <h3>BLE Spam<a class="headerlink" href="#ble-spam" title="Link to this heading">#</a></h3>
-<section id="id9">
-<h4>Description<a class="headerlink" href="#id9" title="Link to this heading">#</a></h4>
+<p><strong>Description :</strong></p>
 <p>This app spam nearby user with BLE advertisement frame (such as airpods pop up).</p>
-</section>
-<section id="id10">
-<h4>How it work<a class="headerlink" href="#id10" title="Link to this heading">#</a></h4>
-<p>It forge frame with predefined devices (for APPLE, SAMSUNG, GOOGLE, MICROSOFT) and modify only the sender address each time so the target think it’s another device.</p>
-</section>
-<section id="id11">
-<h4>How to use<a class="headerlink" href="#id11" title="Link to this heading">#</a></h4>
-<section id="id12">
-<h5>Args<a class="headerlink" href="#id12" title="Link to this heading">#</a></h5>
+<p><strong>How it work :</strong></p>
+<p>It forge frame with predefined devices (for <code class="docutils literal notranslate"><span class="pre">APPLE</span></code>, <code class="docutils literal notranslate"><span class="pre">SAMSUNG</span></code>, <code class="docutils literal notranslate"><span class="pre">GOOGLE</span></code>, <code class="docutils literal notranslate"><span class="pre">MICROSOFT</span></code>) and modify only the sender address each time so the target think it’s another device.</p>
+<blockquote>
+<div><p><strong>Tips</strong> ; Apple device spam still work like a charm, same for samsung devices, but for the google device spam, there is a cooldown, it will spawn popup multiple times like 5 or 6, and then nothing, you need to reboot the phone for it to be spammed again</p>
+</div></blockquote>
+<p>You can also flood bluetooth device scanner using the <code class="docutils literal notranslate"><span class="pre">NAME</span></code> device.</p>
+<p><strong>How to use :</strong></p>
+<p><em><strong>Arguments</strong></em></p>
 <ul class="simple">
-<li><p><strong>Devices</strong>: APPLE, SAMSUNG, GOOGLE, MICROSOFT</p></li>
+<li><p><strong>Devices</strong>: <code class="docutils literal notranslate"><span class="pre">APPLE</span></code>, <code class="docutils literal notranslate"><span class="pre">SAMSUNG</span></code>, <code class="docutils literal notranslate"><span class="pre">GOOGLE</span></code>, <code class="docutils literal notranslate"><span class="pre">MICROSOFT</span></code>, <code class="docutils literal notranslate"><span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">ALL</span></code></p></li>
 <li><p><strong>Start attack</strong></p></li>
 </ul>
-</section>
-</section>
 </section>
 </section>
 <section id="subghz-upcoming">
@@ -537,45 +477,13 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wifi">Wifi</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#beacon-spam">Beacon Spam</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-work">How it work</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-use">How to use</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#args">Args</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deauther">Deauther</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Description</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">How it work</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">How to use</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Args</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wifi-sniffer">Wifi Sniffer</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Description</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">How it work</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">How to use</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Args</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#beacon-spam">Beacon Spam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deauther">Deauther</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wifi-sniffer">Wifi Sniffer</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bluetooth">Bluetooth</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ble-spam">BLE Spam</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Description</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">How it work</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">How to use</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Args</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ble-spam">BLE Spam</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subghz-upcoming">SubGhz (upcoming)</a></li>

@@ -13,32 +13,32 @@ Current app:
 ## Wifi
 ### Beacon Spam
 
-#### Description
+**Description :**
 
 This app simply spam nearby user with AP beacon, thus filling their wifi scanner.
 
-#### How it work
+**How it work :**
 
 It either generate a random BSSID with a given charset, or use a specific string and spam [Beacon frame](https://en.wikipedia.org/wiki/Beacon_frame)
 
-#### How to use
+**How to use :**
 
-##### Args
+***Arguments***
 
 * **Charset**: Hiragana (あいう), Katakana (アイウ), Cyrillic (ЖБЮ)
 * **Start attack**
 
 ### Deauther
 
-#### Description
+**Description :**
 
 This app scan for AP, prompt you to select AP and client and then spam forged deauth frame.
 
-#### How it work
+**How it work :**
 
 First the AP scan, it's a simple esp wifi scan (dindn't dig too much to see how it work but it's able to get the AP name from Beacon, which i didn't tried).
 
-Then the client scan, it uses the wifi sniffer to catch client for given AP by sniffing frame and check if frame addresses contain both the client and the AP.
+Then the client scan, it uses the wifi sniffer to catch client for a given AP by sniffing frame and checking if the frame addresses contain both the client and the AP.
 
 ```C
     if (is_broadcast(hdr->addr1) || is_broadcast(hdr->addr2) || is_broadcast(hdr->addr3)) {
@@ -67,11 +67,11 @@ Then the client scan, it uses the wifi sniffer to catch client for given AP by s
     }
 ```
 
-This method can be enhanced in the future.
+This method will be enhanced in the future.
 
-#### How to use
+**How to use :**
 
-##### Args
+***Arguments***
 
 * **AP mac**: Scan and select with [select_wifi_menu](https://github.com/Retr0Kr0dy/BeamStalker/blob/main/Firmware/BeamStalker/main/firmware/includes/wifi.cpp#L127)
 * **Client mac**:  Scan and select with [select_client_menu](https://github.com/Retr0Kr0dy/BeamStalker/blob/main/Firmware/BeamStalker/main/firmware/includes/wifi_sniffer.cpp#L158)
@@ -79,17 +79,17 @@ This method can be enhanced in the future.
 
 ### Wifi Sniffer
 
-#### Description
+**Description :**
 
 This app is used to sniff and capture wifi traffic, currently you can only select frame control filter and print packet to serial console, in the future, we should be able to save to pcap file on sdcard
 
-#### How it work
+**How it work :**
 
 it sniff packet, check if frame match filter, if so, it log/save the frame
 
-#### How to use
+**How to use :**
 
-##### Args
+***Arguments***
 
 * **Filter**: frame control value ([See here](https://en.wikipedia.org/wiki/802.11_frame_types))
 * **Start sniffing**
@@ -98,19 +98,23 @@ it sniff packet, check if frame match filter, if so, it log/save the frame
 
 ### BLE Spam
 
-#### Description
+**Description :**
 
 This app spam nearby user with BLE advertisement frame (such as airpods pop up).
 
-#### How it work
+**How it work :**
 
-It forge frame with predefined devices (for APPLE, SAMSUNG, GOOGLE, MICROSOFT) and modify only the sender address each time so the target think it's another device.
+It forge frame with predefined devices (for `APPLE`, `SAMSUNG`, `GOOGLE`, `MICROSOFT`) and modify only the sender address each time so the target think it's another device.
 
-#### How to use
+> **Tips** ; Apple device spam still work like a charm, same for samsung devices, but for the google device spam, there is a cooldown, it will spawn popup multiple times like 5 or 6, and then nothing, you need to reboot the phone for it to be spammed again
 
-##### Args
+You can also flood bluetooth device scanner using the `NAME` device.
 
-* **Devices**: APPLE, SAMSUNG, GOOGLE, MICROSOFT
+**How to use :**
+
+***Arguments***
+
+* **Devices**: `APPLE`, `SAMSUNG`, `GOOGLE`, `MICROSOFT`, `NAME`, `ALL`
 * **Start attack**
 
 ## SubGhz (upcoming)
