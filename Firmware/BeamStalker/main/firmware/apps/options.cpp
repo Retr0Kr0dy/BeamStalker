@@ -22,7 +22,7 @@ int APP_Options() {
         Menu.elements[1].options[i] = NULL;
     }
 
-    strcpy(Menu.elements[2].name, "Developper");
+    strcpy(Menu.elements[2].name, "File Manager");
     Menu.elements[2].type = 1;
     Menu.elements[2].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
@@ -51,6 +51,7 @@ int APP_Options() {
                 vTaskDelay(pdMS_TO_TICKS(300));
                 int wait = 1;
                 switch (Selector) {
+                    int ret;
                     case 0:
                         displayText(0, 0, "Current Firmware:");
                         displayText(0, 2, VERSION);
@@ -79,20 +80,14 @@ int APP_Options() {
                         }
                         clearScreen();
                         break;
-                    case 2:
-                        displayText(0, 4, "Good job,");
-                        displayText(0, 6, "you develop");
-                        vTaskDelay(pdMS_TO_TICKS(200));
-                        wait = 1;
-                        while (wait) {
-                            updateBoard();
-                            if (anyPressed()) {
-                                wait = 0;
-                            }
-                            vTaskDelay(pdMS_TO_TICKS(50));
-                        }
+                    case 2:  // File Manager
                         clearScreen();
+                        ret = APP_FileManager();
+                        if (ret != 0) {
+                            LogError("Error in app.");
+                        }
                         break;
+
                 }
             }
             drawMenu(Menu, Selector);

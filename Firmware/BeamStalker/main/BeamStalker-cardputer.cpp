@@ -80,21 +80,21 @@ int mainTask() {
                         clearScreen();
                         ret = APP_WiFcker();
                         if (ret != 0) {
-                            printf("Error in app.");
+                            LogError("Error in app.");
                         }
                         break;
                     case 1:  // BLE
                         clearScreen();
                         ret = APP_BLE();
                         if (ret != 0) {
-                            printf("Error in app.");
+                            LogError("Error in app.");
                         }
                         break;
                     case 2:  // Options
                         clearScreen();
                         ret = APP_Options();
                         if (ret != 0) {
-                            printf("Error in app.");
+                            LogError("Error in app.");
                         }
                         break;
                 }
