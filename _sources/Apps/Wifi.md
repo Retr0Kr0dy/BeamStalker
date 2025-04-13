@@ -1,17 +1,5 @@
-# Apps
-Current app:
-
-* Wifi
-  * Beacon Spam
-  * Deauther
-  * Wifi Sniffer
-* Bluetooth
-  * BLE Spam
-* SubGhz (upcoming)
-  * RTL_433 (upcoming)
-
-## Wifi
-### Beacon Spam
+# Wifi
+## Beacon Spam
 
 **Description :**
 
@@ -28,7 +16,7 @@ It either generate a random BSSID with a given charset, or use a specific string
 * **Charset**: Hiragana (あいう), Katakana (アイウ), Cyrillic (ЖБЮ)
 * **Start attack**
 
-### Deauther
+## Deauther
 
 **Description :**
 
@@ -77,7 +65,7 @@ This method will be enhanced in the future.
 * **Client mac**:  Scan and select with [select_client_menu](https://github.com/Retr0Kr0dy/BeamStalker/blob/main/Firmware/BeamStalker/main/firmware/includes/wifi_sniffer.cpp#L158)
 * **Start attack**
 
-### Wifi Sniffer
+## Wifi Sniffer
 
 **Description :**
 
@@ -93,28 +81,3 @@ it sniff packet, check if frame match filter, if so, it log/save the frame
 
 * **Filter**: frame control value ([See here](https://en.wikipedia.org/wiki/802.11_frame_types))
 * **Start sniffing**
-
-## Bluetooth
-
-### BLE Spam
-
-**Description :**
-
-This app spam nearby user with BLE advertisement frame (such as airpods pop up).
-
-**How it work :**
-
-It forge frame with predefined devices (for `APPLE`, `SAMSUNG`, `GOOGLE`, `MICROSOFT`) and modify only the sender address each time so the target think it's another device.
-
-> **Tips** ; Apple device spam still work like a charm, same for samsung devices, but for the google device spam, there is a cooldown, it will spawn popup multiple times like 5 or 6, and then nothing, you need to reboot the phone for it to be spammed again
-
-You can also flood bluetooth device scanner using the `NAME` device.
-
-**How to use :**
-
-***Arguments***
-
-* **Devices**: `APPLE`, `SAMSUNG`, `GOOGLE`, `MICROSOFT`, `NAME`, `ALL`
-* **Start attack**
-
-## SubGhz (upcoming)
