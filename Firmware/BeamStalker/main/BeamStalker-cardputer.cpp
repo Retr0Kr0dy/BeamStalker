@@ -119,14 +119,16 @@ extern "C" void app_main(void) {
     const char* name = "BeamStalker";
 
     for (;;) {
-        clearScreen();
-        int16_t x = ((DISPLAY_WIDTH - 120) / 4) * 3;
-        drawBitmap(x, 0, 120, 120, skully, TFT_WHITE);
-        
-        vTaskDelay(pdMS_TO_TICKS(200));
+        if (display_ok) {
+            clearScreen();
+            int16_t x = ((DISPLAY_WIDTH - 120) / 4) * 3;
+            drawBitmap(x, 0, 120, 120, skully, TFT_WHITE);
+            
+            vTaskDelay(pdMS_TO_TICKS(200));
 
-        displayText(0, 4, name);
-        displayText(0, 5, VERSION);
+            displayText(0, 4, name);
+            displayText(0, 5, VERSION);
+        }
 
         printf("%s %s\n", name, VERSION);
 

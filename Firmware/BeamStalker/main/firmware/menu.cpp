@@ -86,6 +86,11 @@ void serialMenu(struct menu Menu, int selector) {
 
 void drawMenu(struct menu Menu, int selector) {
     serialMenu(Menu, selector);
+
+    if (!display_ok) {
+        return;
+    }
+
     char fullMenuName[50];
     sprintf(fullMenuName, "%s",createHeaderLine(Menu.name));
 

@@ -5,7 +5,7 @@ int APP_Options() {
     struct menu Menu;
 
     Menu.name = "~/Options";
-    Menu.length = 3;  // sysinfo, settings, develop
+    Menu.length = 4;  // sysinfo, settings, file manager, notepad
     Menu.elements = new item[Menu.length];
 
     strcpy(Menu.elements[0].name, "System Info");
@@ -27,6 +27,13 @@ int APP_Options() {
     Menu.elements[2].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
         Menu.elements[2].options[i] = NULL;
+    }
+
+    strcpy(Menu.elements[3].name, "Notepad");
+    Menu.elements[3].type = 1;
+    Menu.elements[3].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[3].options[i] = NULL;
     }
 
     drawMenu(Menu, Selector);
@@ -51,7 +58,6 @@ int APP_Options() {
                 vTaskDelay(pdMS_TO_TICKS(300));
                 int wait = 1;
                 switch (Selector) {
-                    int ret;
                     case 0:
                         displayText(0, 0, "Current Firmware:");
                         displayText(0, 2, VERSION);
@@ -82,12 +88,30 @@ int APP_Options() {
                         break;
                     case 2:  // File Manager
                         clearScreen();
+                        #ifdef CONFIG_HAS_SDCARD
+                        int ret;
                         ret = APP_FileManager();
                         if (ret != 0) {
                             LogError("Error in app.");
                         }
-                        break;
+                        #else
+                        LogError("CONFIG_HAS_SDCARD = n");
+                        #endif
 
+                        break;
+                    case 3:  // Notepad
+                        clearScreen();
+                        #ifdef CONFIG_HAS_SDCARD
+                        int ret;
+                        ret = APP_Notepad("");
+                        if (ret != 0) {
+                            LogError("Error in app.");
+                        }
+                        #else
+                        LogError("CONFIG_HAS_SDCARD = n");
+                        #endif
+
+                        break;
                 }
             }
             drawMenu(Menu, Selector);

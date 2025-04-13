@@ -12,6 +12,12 @@ config HELTEC_BOARD
     help
         Specify if board is using Heltec libs.
                         
+config HAS_DISPLAY
+    bool "Has display"
+    default n
+    help
+        Specify if board has screen.
+        
 config HAS_SSD1306_DISPLAY
     bool "Has ssd1306 display"
     default n

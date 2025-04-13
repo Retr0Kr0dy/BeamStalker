@@ -251,12 +251,20 @@ void initBoard() {
     M5.Display.setTextSize(charsize_multiplier);
     M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
     M5.Display.setFont(&fonts::FreeMonoBold18pt7b);
+    display_ok = 1;
     #elif CONFIG_HELTEC_BOARD
+    #ifdef CONFIG_HAS_DISPLAY
     i2c_master_init(&display, CONFIG_SCL_GPIO, CONFIG_SDA_GPIO, CONFIG_RESET_GPIO);
     ssd1306_init(&display, 128, 64);
     ssd1306_contrast(&display, 0xff);
     ssd1306_clear_screen(&display, false);
+    display_ok = 1;
+//    } else {
+//        LogError("Couldn't mount display");
+//    }
     #endif
+    #endif
+
     #ifdef CONFIG_HAS_SDCARD
     initSDCard();    
 
@@ -323,7 +331,9 @@ void drawFillRect(int x, int y, int end_x, int end_y, const unsigned int &color)
 int LogError(const std::string& message) {
     clearScreen();
     displayText(0, 1, message.c_str(), TFT_RED);
-    vTaskDelay(pdMS_TO_TICKS(5000));
+    printf ("[Error] %s\n", message.c_str());
+    vTaskDelay(pdMS_TO_TICKS(2000));    
+
     return 0;
 }
 
