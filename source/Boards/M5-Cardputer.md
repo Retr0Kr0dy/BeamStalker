@@ -10,4 +10,4 @@ M5 Cardputer specific
 
 ## Images
 
-![m5-cardputer](/_static/m5-cardputer.jpeg)
+![m5-cardputer](/_static/m5-cardputer.png)
