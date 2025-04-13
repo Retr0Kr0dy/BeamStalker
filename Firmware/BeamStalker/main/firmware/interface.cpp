@@ -24,6 +24,18 @@ bool SERIAL_CONSOLE_NOT_EMPTY = false;
 #define UART_PORT_NUM    UART_NUM_0
 #define BUF_SIZE         1024
 
+bool i2c_device_available(i2c_port_t port, uint8_t address) {
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (address << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_stop(cmd);
+
+    esp_err_t ret = i2c_master_cmd_begin(port, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+
+    return (ret == ESP_OK);
+}
+
 int checkUartChar() {
     uint8_t data[BUF_SIZE];
     
@@ -255,13 +267,15 @@ void initBoard() {
     #elif CONFIG_HELTEC_BOARD
     #ifdef CONFIG_HAS_DISPLAY
     i2c_master_init(&display, CONFIG_SCL_GPIO, CONFIG_SDA_GPIO, CONFIG_RESET_GPIO);
-    ssd1306_init(&display, 128, 64);
-    ssd1306_contrast(&display, 0xff);
-    ssd1306_clear_screen(&display, false);
-    display_ok = 1;
-//    } else {
-//        LogError("Couldn't mount display");
-//    }
+    if (i2c_device_available(display._i2c_num, display._address)) {
+        ssd1306_init(&display, 128, 64);
+        ssd1306_contrast(&display, 0xff);
+        ssd1306_clear_screen(&display, false);
+
+        display_ok = 1;
+    } else {
+        LogError("Display not responding on I2C");
+    }
     #endif
     #endif
 
