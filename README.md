@@ -1,5 +1,3 @@
-# BeamStalker
-
 ![](https://github.com/Retr0Kr0dy/BeamStalker/blob/main/assets/beamstalker.png)
 
 BeamStalker is open-source firmware for esp based boards designed for RF experimentation, encouraging collaboration and ethical exploration. No profit motive here—just a project for those who want to mess around with RF tech and hack their way through.
