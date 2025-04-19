@@ -25,7 +25,7 @@ You got 3 main way to control the firmware :
 - Second one, is using the main button on esp (short press, long press, ...) but it's currently buggy.
 - Third one, is using the serial console, but this imply that you have a phone or computer nearby to control.
 
-For more specific usage docs, go check the [wiki](https://retr0kr0dy.github.io/).
+For more specific usage docs, go check the [wiki](https://retr0kr0dy.github.io/BeamStalker).
 
 ## Features
 
