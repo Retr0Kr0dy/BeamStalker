@@ -1,5 +1,3 @@
-#ifdef CONFIG_HAS_SDCARD
-
 #ifndef NOTEPAD_H
 #define NOTEPAD_H
 
@@ -16,5 +14,4 @@ extern "C" {
 
 int APP_Notepad(const char* initPath);
 
-#endif
 #endif

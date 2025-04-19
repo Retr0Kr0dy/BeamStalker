@@ -2,6 +2,7 @@
 
 #include "driver/gpio.h"
 #include "driver/uart.h"
+#include "driver/i2c.h"
 #include "rom/uart.h"
 
 bool DEFAULT_BTN_PRESSED,

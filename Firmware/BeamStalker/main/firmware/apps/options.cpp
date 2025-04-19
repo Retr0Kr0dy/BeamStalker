@@ -57,6 +57,7 @@ int APP_Options() {
                 clearScreen();
                 vTaskDelay(pdMS_TO_TICKS(300));
                 int wait = 1;
+                int ret;
                 switch (Selector) {
                     case 0:
                         displayText(0, 0, "Current Firmware:");
@@ -89,27 +90,27 @@ int APP_Options() {
                     case 2:  // File Manager
                         clearScreen();
                         #ifdef CONFIG_HAS_SDCARD
-                        int ret;
                         ret = APP_FileManager();
+                        #else
+                        ret = 0;
+                        LogError("CONFIG_HAS_SDCARD = n");
+                        #endif
                         if (ret != 0) {
                             LogError("Error in app.");
                         }
-                        #else
-                        LogError("CONFIG_HAS_SDCARD = n");
-                        #endif
 
                         break;
                     case 3:  // Notepad
                         clearScreen();
                         #ifdef CONFIG_HAS_SDCARD
-                        int ret;
                         ret = APP_Notepad("");
+                        #else
+                        ret = 0;
+                        LogError("CONFIG_HAS_SDCARD = n");
+                        #endif
                         if (ret != 0) {
                             LogError("Error in app.");
                         }
-                        #else
-                        LogError("CONFIG_HAS_SDCARD = n");
-                        #endif
 
                         break;
                 }
