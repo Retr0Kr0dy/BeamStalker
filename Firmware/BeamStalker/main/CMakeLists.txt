@@ -11,7 +11,7 @@ file(GLOB_RECURSE APP_SOURCES
 
 idf_component_register(
     SRCS
-        "BeamStalker-cardputer.cpp"
+        "BeamStalker.cpp"
         ${APP_SOURCES}
     INCLUDE_DIRS 
         "${SOURCE_DIR}"

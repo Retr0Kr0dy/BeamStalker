@@ -89,5 +89,6 @@ float charsize_multiplier = 1;
 #endif
 
 int charsize = (int)(font_size*charsize_multiplier)+((40*font_size)/100);
+int display_ok = 0;
 
 #endif

@@ -5,7 +5,7 @@ int APP_Options() {
     struct menu Menu;
 
     Menu.name = "~/Options";
-    Menu.length = 3;  // sysinfo, settings, develop
+    Menu.length = 4;  // sysinfo, settings, file manager, notepad
     Menu.elements = new item[Menu.length];
 
     strcpy(Menu.elements[0].name, "System Info");
@@ -22,11 +22,18 @@ int APP_Options() {
         Menu.elements[1].options[i] = NULL;
     }
 
-    strcpy(Menu.elements[2].name, "Developper");
+    strcpy(Menu.elements[2].name, "File Manager");
     Menu.elements[2].type = 1;
     Menu.elements[2].length = 0;
     for (int i = 0; i < MAX_OPTIONS; i++) {
         Menu.elements[2].options[i] = NULL;
+    }
+
+    strcpy(Menu.elements[3].name, "Notepad");
+    Menu.elements[3].type = 1;
+    Menu.elements[3].length = 0;
+    for (int i = 0; i < MAX_OPTIONS; i++) {
+        Menu.elements[3].options[i] = NULL;
     }
 
     drawMenu(Menu, Selector);
@@ -50,6 +57,7 @@ int APP_Options() {
                 clearScreen();
                 vTaskDelay(pdMS_TO_TICKS(300));
                 int wait = 1;
+                int ret;
                 switch (Selector) {
                     case 0:
                         displayText(0, 0, "Current Firmware:");
@@ -79,19 +87,31 @@ int APP_Options() {
                         }
                         clearScreen();
                         break;
-                    case 2:
-                        displayText(0, 4, "Good job,");
-                        displayText(0, 6, "you develop");
-                        vTaskDelay(pdMS_TO_TICKS(200));
-                        wait = 1;
-                        while (wait) {
-                            updateBoard();
-                            if (anyPressed()) {
-                                wait = 0;
-                            }
-                            vTaskDelay(pdMS_TO_TICKS(50));
-                        }
+                    case 2:  // File Manager
                         clearScreen();
+                        #ifdef CONFIG_HAS_SDCARD
+                        ret = APP_FileManager();
+                        #else
+                        ret = 0;
+                        LogError("CONFIG_HAS_SDCARD = n");
+                        #endif
+                        if (ret != 0) {
+                            LogError("Error in app.");
+                        }
+
+                        break;
+                    case 3:  // Notepad
+                        clearScreen();
+                        #ifdef CONFIG_HAS_SDCARD
+                        ret = APP_Notepad("");
+                        #else
+                        ret = 0;
+                        LogError("CONFIG_HAS_SDCARD = n");
+                        #endif
+                        if (ret != 0) {
+                            LogError("Error in app.");
+                        }
+
                         break;
                 }
             }
