@@ -237,26 +237,27 @@ void initBoard() {
     };
     gpio_config(&default_btn_conf);
 
-    // serial console
-    #ifndef CONFIG_M5_BOARD
-    uart_config_t uart_config = {
-        .baud_rate = 115200,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .rx_flow_ctrl_thresh = 0,
-        .source_clk = UART_SCLK_APB,
-    };
 
-    uart_param_config(UART_PORT_NUM, &uart_config);
+    // // serial console
+    // #ifndef CONFIG_M5_BOARD
+    // uart_config_t uart_config = {
+    //     .baud_rate = 115200,
+    //     .data_bits = UART_DATA_8_BITS,
+    //     .parity = UART_PARITY_DISABLE,
+    //     .stop_bits = UART_STOP_BITS_1,
+    //     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    //     .rx_flow_ctrl_thresh = 0,
+    //     .source_clk = UART_SCLK_APB,
+    // };
+
+    // uart_param_config(UART_PORT_NUM, &uart_config);
  
-    esp_err_t err = uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0);
-    if (err != ESP_OK) {
-        printf("Failed to install UART driver: %s\n", esp_err_to_name(err));
-        return;
-    }
-    #endif
+    // esp_err_t err = uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0);
+    // if (err != ESP_OK) {
+    //     printf("Failed to install UART driver: %s\n", esp_err_to_name(err));
+    //     return;
+    // }
+    // #endif
 
     #ifdef CONFIG_M5_BOARD
     M5Cardputer.begin(true);

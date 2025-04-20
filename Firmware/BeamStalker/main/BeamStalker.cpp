@@ -4,13 +4,20 @@ extern "C" {
 #include <stdlib.h>
 }
 
+#include "esp_console.h"
+#include "cmd_system.h"
+
 #include "firmware/helper.h"
 #include "firmware/bitmaps.h"
 #include "firmware/menu.h"
 #include "firmware/interface.h"
 
 #include "firmware/apps/options.h"
+
+#include "firmware/apps/Wifi/beacon_spam.h"
+#include "firmware/apps/Wifi/deauther.h"
 #include "firmware/apps/Wifi/wifi_main.h"
+
 #include "firmware/apps/BLE/ble_main.h"
 
 int mainTask() {
@@ -78,7 +85,7 @@ int mainTask() {
                     int ret;
                     case 0:  // WiFcker
                         clearScreen();
-                        ret = APP_WiFcker();
+                        ret = 1;//APP_WiFcker();
                         if (ret != 0) {
                             LogError("Error in app.");
                         }
@@ -106,6 +113,9 @@ int mainTask() {
 }
 
 extern "C" void app_main(void) {
+    /* Prod ready no log at startup*/
+    esp_log_level_set("*", ESP_LOG_NONE);
+
     initBoard();
 
     esp_err_t ret = nvs_flash_init();
@@ -115,41 +125,30 @@ extern "C" void app_main(void) {
     }
     ESP_ERROR_CHECK(ret);
 
-    clearScreen();
-    const char* name = "BeamStalker";
+    printf("BeamStalker %s\n", VERSION);
 
-    for (;;) {
-        if (display_ok) {
-            clearScreen();
-            int16_t x = ((DISPLAY_WIDTH - 120) / 4) * 3;
-            drawBitmap(x, 0, 120, 120, skully, TFT_WHITE);
-            
-            vTaskDelay(pdMS_TO_TICKS(200));
+    esp_console_repl_t *repl = NULL;
+    esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
+    /* Prompt to be printed before each line.
+     * This can be customized, made dynamic, etc.
+     */
+    repl_config.prompt = "striker:>";
+    repl_config.max_cmdline_length = CONFIG_CONSOLE_MAX_COMMAND_LINE_LENGTH;
 
-            displayText(0, 4, name);
-            displayText(0, 5, VERSION);
-        }
+    /* Loads Modules */
+    esp_console_register_help_command();
 
-        printf("%s %s\n", name, VERSION);
+    register_system();
+    module_beaconspam();
+    module_deauth();
+    module_wifiscan();
 
-        vTaskDelay(pdMS_TO_TICKS(500));
+#if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
+    esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_console_new_repl_uart(&hw_config, &repl_config, &repl));
+#else
+#error Unsupported console type
+#endif
 
-        displayText(0, 7, "Press to boot...");
-
-        int loop = 1;
-
-        while (loop) {
-            updateBoard();
-            if (anyPressed()) {
-                clearScreen();
-
-                int taskRet = mainTask();
-                if (taskRet != 0) {
-                    printf("Main task error\n");
-                }
-                loop = 0;
-            }
-            vTaskDelay(pdMS_TO_TICKS(50));
-        }
-    }
+    ESP_ERROR_CHECK(esp_console_start_repl(repl));
 }

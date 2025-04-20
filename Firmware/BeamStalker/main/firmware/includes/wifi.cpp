@@ -1,5 +1,14 @@
 #include "wifi.h"
 
+#include "esp_event.h"
+#include "esp_task_wdt.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/timers.h"
+#include "time.h"
+
+#include <cstring>
+
 extern "C" int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3)
 {
     return 0;
@@ -13,10 +22,7 @@ void pps_timer_callback(TimerHandle_t xTimer) {
     char buffer[32];
     snprintf(buffer, sizeof(buffer), "%d packets/sec", packet_count);
 
-    clearScreen();
-    displayText(0, 2, "Attacking...");
-    displayText(0, 3, buffer);
-
+    printf ("[PPS] %s\n", buffer);
     packet_count = 0;
 }
 
@@ -100,102 +106,5 @@ void generate_random_mac(uint8_t *mac_addr) {
     
     for (int i = 3; i < 6; i++) {
         mac_addr[i] = rand() % 256;
-    }
-}
-
-AP* getSelectedAPs(menu Menu, AP* ap_info_list, int* selected_count) {
-    AP* selected_aps = (AP*)malloc(Menu.length * sizeof(AP));
-    if (!selected_aps) {
-        printf("Memory allocation failed for selected APs.\n");
-        return NULL;
-    }
-
-    int count = 0;
-    for (int i = 0; i < Menu.length - 1; i++) {
-        if (Menu.elements[i].options[Menu.elements[i].selector][0] == 'x') {
-            memcpy(&selected_aps[count], &ap_info_list[i], sizeof(AP));
-            count++;
-        }
-    }
-
-    selected_aps = (AP*)realloc(selected_aps, count * sizeof(AP));
-
-    *selected_count = count;
-    return selected_aps;
-}
-
-AP* select_wifi_menu(int *selected_ap_count) {
-    int ap_count;
-    AP* ap_info_list = scan_wifi_ap(&ap_count);
-
-    if (!ap_info_list) {
-        printf("No access points found.\n");
-        return NULL;
-    }
-
-    int Selector = 0;
-    menu Menu;
-    Menu.name = "Wifi Select";
-    Menu.length = ap_count + 1;
-    Menu.elements = (item *)malloc(Menu.length * sizeof(item));
-
-    for (int i = 0; i < ap_count; i++) {
-        snprintf(Menu.elements[i].name, sizeof(Menu.elements[i].name),
-                     "%.*s-%02x:%02x",
-                     7, ap_info_list[i].name,
-                     ap_info_list[i].address[4], ap_info_list[i].address[5]);
-        Menu.elements[i].type = 0;
-        Menu.elements[i].length = 2;
-        Menu.elements[i].selector = 0;
-        Menu.elements[i].options[0] = " ";
-        Menu.elements[i].options[1] = "x";
-        Menu.elements[i].options[2] = NULL;
-    }
-
-    strcpy(Menu.elements[ap_count].name, "Select");
-    Menu.elements[ap_count].type = 1;
-    Menu.elements[ap_count].length = 0;
-    for (int i = 0; i < MAX_OPTIONS; i++) {
-        Menu.elements[ap_count].options[i] = NULL;
-    }
-
-    drawMenu(Menu, Selector);
-
-    while (1) {
-        updateBoard();
-        if (anyPressed()) {
-            if (returnPressed()) {
-                vTaskDelay(pdMS_TO_TICKS(300));
-                return 0;
-            }
-           else if (upPressed()) {
-                Selector = intChecker(Selector - 1, Menu.length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            else if (downPressed()) {
-                Selector = intChecker(Selector + 1, Menu.length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            else if (leftPressed() && (Menu.elements[Selector].type == 0)) {
-                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            else if (rightPressed()  && (Menu.elements[Selector].type == 0)) {
-                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            if (selectPressed()) {
-                vTaskDelay(pdMS_TO_TICKS(300));
-                if (Selector == (Menu.length - 1)) {  // Select
-                    for (int i = 0; i < ap_count; i++) {
-                        AP* selected_aps = getSelectedAPs(Menu, ap_info_list, selected_ap_count);
-
-                        return selected_aps;
-                    }
-                }
-            }
-            drawMenu(Menu, Selector);
-        }
-        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }

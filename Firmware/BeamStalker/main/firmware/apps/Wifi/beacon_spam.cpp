@@ -1,5 +1,11 @@
 #include "beacon_spam.h"
 
+#include "esp_console.h"
+#include "argtable3/argtable3.h"
+#include "driver/uart.h"
+
+#include <cstring>
+
 void send_beacon(const char *ssid, const uint8_t *mac_addr, uint8_t channel) {
     uint8_t beacon_frame[128] = {0};
     int ssid_len = strlen(ssid);
@@ -48,7 +54,7 @@ void send_beacon(const char *ssid, const uint8_t *mac_addr, uint8_t channel) {
     esp_wifi_80211_tx(WIFI_IF_STA, beacon_frame, frame_len, false);
 }
 
-char *generate_ssid() {
+char *generate_ssid(int charset) {
     char *ssid;
 
     if (charset == 3) {
@@ -96,8 +102,14 @@ char *generate_ssid() {
     return ssid;
 }
 
-void trollBeacon() {
-    char *ssid = generate_ssid();
+void trollBeacon(int charset, const char *custom) {
+    const char *ssid;
+
+    if (custom != NULL) {
+        ssid = custom;
+    } else {
+        ssid = generate_ssid(charset);
+    }
 
     if (ssid == NULL) {
         printf("Failed to generate SSID\n");
@@ -111,94 +123,72 @@ void trollBeacon() {
         send_beacon(ssid, mac_addr, CHANNEL);
     }
 
-    free(ssid);
+    printf ("[BEACONSPAM] Sending frame: %s\n", ssid);
 }
 
-int BeaconSpam() {
-    start_wifi(WIFI_MODE_STA, true);
+static struct {
+    struct arg_int *charset;
+    struct arg_str *customs;
+    struct arg_end *end;
+} beaconspam_args;
 
-    charset = 0;
-
-    int Selector = 0;
-    struct menu Menu;
-
-    Menu.name = "~/WiFi/BcnSpm";
-    Menu.length = 2;  // charset, statack
-    Menu.elements = new item[Menu.length];
-
-    strcpy(Menu.elements[0].name, "Charset");
-    Menu.elements[0].type = 0;
-    Menu.elements[0].length = 4;
-    Menu.elements[0].selector = 0;
-    Menu.elements[0].options[0] = "hig";
-    Menu.elements[0].options[1] = "kat";
-    Menu.elements[0].options[2] = "cyr";
-    Menu.elements[0].options[3] = "CDLD";
-    Menu.elements[0].options[4] = NULL;
-
-
-    strcpy(Menu.elements[1].name, "Start attack");
-    Menu.elements[1].type = 1;
-    Menu.elements[1].length = 0;
-    for (int i = 0; i < MAX_OPTIONS; i++) {
-        Menu.elements[1].options[i] = NULL;
+static int do_beaconspam_cmd(int argc, char **argv) {
+    int nerrors = arg_parse(argc, argv, (void **)&beaconspam_args);
+    if (nerrors != 0) {
+        arg_print_errors(stderr, beaconspam_args.end, argv[0]);
+        return 1;
     }
 
-    drawMenu(Menu, Selector);
+    int charset = 0;
+    const char *custom_ssid = NULL;
+
+    if (beaconspam_args.charset->count > 0) {
+        charset = beaconspam_args.charset->ival[0];
+    }
+
+    if (beaconspam_args.customs->count > 0) {
+        custom_ssid = beaconspam_args.customs->sval[0];
+    }
+
+    start_wifi(WIFI_MODE_STA, true);
+    init_pps_timer();
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+    const int uart_num = UART_NUM_0;
+    uint8_t data;
 
     while (1) {
-        updateBoard();
-        if (anyPressed()) {
-            if (returnPressed()) {
-                stop_wifi();
-                vTaskDelay(pdMS_TO_TICKS(300));
-
-                return 0;
-            }
-            else if (upPressed()) {
-                Selector = intChecker(Selector - 1, Menu.length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            else if (downPressed()) {
-                Selector = intChecker(Selector + 1, Menu.length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            else if (leftPressed() && (Menu.elements[Selector].type == 0)) {
-                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector - 1, Menu.elements[Selector].length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            else if (rightPressed()  && (Menu.elements[Selector].type == 0)) {
-                Menu.elements[Selector].selector = intChecker(Menu.elements[Selector].selector + 1, Menu.elements[Selector].length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            if (selectPressed()) {
-                vTaskDelay(pdMS_TO_TICKS(300));
-                clearScreen();
-                
-                switch (Selector) {
-                    case 1: // Start attack
-                        init_pps_timer();
-                        vTaskDelay(pdMS_TO_TICKS(100));
-                        charset = Menu.elements[0].selector;
-                        int wait = 1;
-                        while (wait) {
-                            updateBoard();
-                            if (anyPressed()) {
-                                wait = 0;
-                            }
-                            packet_count++;
-                            trollBeacon();
-                            for (int i = 0; i < 10; i++) {
-                                vTaskDelay(pdMS_TO_TICKS(0));  // Yield the processor for a short duration
-                            }
-                        }
-                        stop_pps_timer();
-                        vTaskDelay(pdMS_TO_TICKS(300));
-                        break;
-                }
-            }
-            drawMenu(Menu, Selector);
+        int len = uart_read_bytes(uart_num, &data, 1, 0);
+        if (len > 0 && data == 0x03) {
+            printf("\nCtrl+C\n");
+            break;
         }
-        vTaskDelay(pdMS_TO_TICKS(50));
+
+        packet_count++;
+        trollBeacon(charset, custom_ssid);    
+        for (int i = 0; i < 10; i++) {
+            vTaskDelay(pdMS_TO_TICKS(0));  // Yield the processor for a short duration
+        }
     }
+
+    stop_pps_timer();
+    stop_wifi();
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+    return 0;
+}
+
+void module_beaconspam(void)
+{
+    beaconspam_args.charset = arg_int0("c", "charset", "<id>", "Charset to generate SSID with.");
+    beaconspam_args.customs = arg_str0("s", "ssid", "<ssid>", "Custom SSID to use.");
+    beaconspam_args.end = arg_end(2);
+    const esp_console_cmd_t beaconspam_cmd = {
+        .command = "beaconspam",
+        .help = "Spam wifi beacon generated randomly or with custom ssid",
+        .hint = NULL,
+        .func = &do_beaconspam_cmd,
+        .argtable = &beaconspam_args
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&beaconspam_cmd));
 }

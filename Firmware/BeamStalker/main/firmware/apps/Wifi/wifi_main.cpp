@@ -1,87 +1,45 @@
 #include "wifi_main.h"
 
-int wifiMenuTask() {
-    srand(time(NULL));
-    int Selector = 0;
-    struct menu Menu;
+#include "esp_console.h"
+#include "argtable3/argtable3.h"
 
-    Menu.name = "~/WiFi";
-    Menu.length = 3;  // BeaconSpam, Deauther, WifiScan
-    Menu.elements = new item[Menu.length];
+static int do_wifiscan_cmd(int argc, char **argv) {
+    start_wifi(WIFI_MODE_STA, true);
+    vTaskDelay(pdMS_TO_TICKS(100));
 
-    strcpy(Menu.elements[0].name, "Beacon Spam");
-    Menu.elements[0].type = 1;
-    Menu.elements[0].length = 0;
-    for (int i = 0; i < MAX_OPTIONS; i++) {
-        Menu.elements[0].options[i] = NULL;
+    printf ("[WIFISCAN] Scanning...\n"); 
+
+    int ap_count;
+    AP* ap_info_list = scan_wifi_ap(&ap_count);
+
+    if (!ap_info_list) {
+        printf("No access points found.\n");
+        return 1;
     }
 
-    strcpy(Menu.elements[1].name, "Deauther");
-    Menu.elements[1].type = 1;
-    Menu.elements[1].length = 0;
-    for (int i = 0; i < MAX_OPTIONS; i++) {
-        Menu.elements[1].options[i] = NULL;
+    stop_wifi();
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+    printf ("[WIFISCAN] Found %d APs :\n", ap_count); 
+    for (int i = 0; i < ap_count; i++) {
+        printf ("\t%02X:%02X:%02X:%02X:%02X:%02X\t%s\n",
+        ap_info_list[i].address[0], ap_info_list[i].address[1], ap_info_list[i].address[2], 
+        ap_info_list[i].address[3], ap_info_list[i].address[4], ap_info_list[i].address[5],
+        ap_info_list[i].name);
     }
 
-    strcpy(Menu.elements[2].name, "Wifi Sniffer");
-    Menu.elements[2].type = 1;
-    Menu.elements[2].length = 0;
-    for (int i = 0; i < MAX_OPTIONS; i++) {
-        Menu.elements[2].options[i] = NULL;
-    }
-
-    drawMenu(Menu, Selector);
-
-    while (1) {
-        updateBoard();
-        if (anyPressed()) {
-            if (returnPressed()) {
-                vTaskDelay(pdMS_TO_TICKS(300));
-                return 0;
-            }
-           else if (upPressed()) {
-                Selector = intChecker(Selector - 1, Menu.length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            else if (downPressed()) {
-                Selector = intChecker(Selector + 1, Menu.length);
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            if (selectPressed()) {
-                vTaskDelay(pdMS_TO_TICKS(300));
-                switch (Selector) {
-                    int ret;
-                    case 0:  // BeaconSpam
-                        printf ("beacon_spam_task - starting\n");
-                        ret = BeaconSpam();
-                        if (ret != 0) {
-                            printf("Error in app.");
-                        }
-                        break;
-                    case 1:  // Deauther
-                        printf ("deauther_task - starting\n");
-                        ret = Deauther();
-                        if (ret != 0) {
-                            printf("Error in app.");
-                        }
-                        break;
-                    case 2: // Sniff Wifi
-                        printf ("wifi_sniffer_task - starting\n");
-                        ret = App_Wifi_Sniffer();
-                        if (ret != 0) {
-                            printf("Error in app.");
-                        }
-                        break;
-                }
-            }
-            drawMenu(Menu, Selector);
-        }
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
+    return 0;
 }
 
-int APP_WiFcker() {
-    int ret = wifiMenuTask();
+void module_wifiscan(void)
+{
+    const esp_console_cmd_t wifiscan_cmd = {
+        .command = "wifiscan",
+        .help = "Scan wifi AP available.",
+        .hint = NULL,
+        .func = &do_wifiscan_cmd,
+        .argtable = NULL
 
-    return ret;
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&wifiscan_cmd));
 }

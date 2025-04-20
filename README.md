@@ -8,14 +8,14 @@ Join in, share your findings, and let’s see what we can create together. Happy
 
 ##### Knowledge should be free 🏴‍☠️
 
-## Installation
+## 🛠️ Installation
 
 Currently you have two choices, either you get the latest bin file for you board in the [release section](https://github.com/Retr0Kr0dy/BeamStalker/releases) and flash it to your board, or you can build the project from source using esp-idf v4.4 (see [Get Started](https://retr0kr0dy.github.io/BeamStalker/Setup.html)).
 
 > [!NOTE]
 > Work gracefully with the [M5Launcher project](https://github.com/bmorcelli/M5Stick-Launcher).
 
-## Usage
+## 📖 Usage
 
 You got 3 main way to control the firmware :
 
@@ -23,9 +23,13 @@ You got 3 main way to control the firmware :
 - Second one, is using the main button on esp (short press, long press, ...) but it's currently buggy.
 - Third one, is using the serial console, but this imply that you have a phone or computer nearby to control.
 
+### Current work in progress...
+
+This is where it get weirder, now inspired by this [Shell-ESP32](https://github.com/Eun0us/Shell-ESP32) project, now the main control for the firmware is using CLI.
+
 For more specific usage docs, go check the [wiki](https://retr0kr0dy.github.io/BeamStalker).
 
-## Features
+## ✨ Features
 
 |Type|Name|Description|Status|
 |-|-|-|-|
@@ -36,13 +40,21 @@ For more specific usage docs, go check the [wiki](https://retr0kr0dy.github.io/B
 |RF|RecordReplay|Record and replay subghz frame|To do|
 |RF|TPMS|Forge and patch tpms frame|To do|
 
-## Supported boards
+## 🖥️ Supported boards
 
 - [esp32](https://www.espressif.com/en/products/socs/esp32)
 - [esp32s3](https://www.espressif.com/en/products/socs/esp32s3)
 - [M5Cardputer](https://shop.m5stack.com/products/m5stack-cardputer-kit-w-m5stamps3)
 - [HeltecV3](https://heltec.org/project/wifi-lora-32-v3/)
 
+## 🙏 Acknowledgements / other cool projects
+
+- [@sdardouchi](https://github.com/sdardouchi) for the github pages (go check [OperationSE](https://github.com/OperationSE) if you like old school phone hack) 
+- [@Eun0us](https://github.com/Eun0us) for the incredible research work on the [esp console](https://github.com/Eun0us/Shell-ESP32)
+- [@bmorcelli](https://github.com/bmorcelli) for his genius [M5Launcher](https://github.com/bmorcelli/Launcher) and work on [Bruce Firmware](https://github.com/pr3y/Bruce)
+- [@pr3y](https://github.com/pr3y) also for [Bruce Firmware](https://github.com/pr3y/Bruce)
+- [7h30th3r0n3](https://github.com/7h30th3r0n3) for the [Evil-M5Project](https://github.com/7h30th3r0n3/Evil-M5Project)
+- and all other projects that I took inspiration from; knowledge should be free 🏴‍☠️.
 ---
 *Made with fun by akpalanaza*
 
