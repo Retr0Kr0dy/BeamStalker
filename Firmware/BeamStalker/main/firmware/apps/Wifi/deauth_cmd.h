@@ -1,5 +1,5 @@
-#ifndef DEAUTHER_H
-#define DEAUTHER_H
+#ifndef DEAUTH_CMD_H
+#define DEAUTH_CMD_H
 
 #include "../../includes/wifi.h"
 

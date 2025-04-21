@@ -11,8 +11,11 @@ int packet_count = 0;
 TimerHandle_t pps_timer;
 
 typedef struct {
-    char name[32];
     uint8_t address[6];
+    char name[33];
+    int rssi;
+    uint8_t channel;
+    wifi_auth_mode_t authmode;
 } AP;
 
 void wsl_bypasser_send_raw_frame(const uint8_t *frame_buffer, int size);

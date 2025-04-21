@@ -1,10 +1,10 @@
-#include "beacon_spam.h"
+#include "beaconspam_cmd.h"
 
 #include "esp_console.h"
 #include "argtable3/argtable3.h"
 #include "driver/uart.h"
-
-#include <cstring>
+#include <string.h>
+#include <stdio.h>
 
 void send_beacon(const char *ssid, const uint8_t *mac_addr, uint8_t channel) {
     uint8_t beacon_frame[128] = {0};
@@ -180,8 +180,8 @@ static int do_beaconspam_cmd(int argc, char **argv) {
 
 void module_beaconspam(void)
 {
-    beaconspam_args.charset = arg_int0("c", "charset", "<id>", "Charset to generate SSID with.");
-    beaconspam_args.customs = arg_str0("s", "ssid", "<ssid>", "Custom SSID to use.");
+    beaconspam_args.charset = arg_int0("c", "charset", "<id>", "Charset to generate SSID with");
+    beaconspam_args.customs = arg_str0("s", "ssid", "<ssid>", "Custom SSID to use");
     beaconspam_args.end = arg_end(2);
     const esp_console_cmd_t beaconspam_cmd = {
         .command = "beaconspam",

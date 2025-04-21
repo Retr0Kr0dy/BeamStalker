@@ -1,12 +1,11 @@
-#include "deauther.h"
+#include "deauth_cmd.h"
 
 #include "esp_console.h"
 #include "argtable3/argtable3.h"
 #include "driver/uart.h"
 #include <regex.h>
 #include <stdbool.h>
-
-#include <cstring>
+#include <string.h>
 
 bool is_valid_mac(const char *mac_str) {
     regex_t regex;
@@ -71,7 +70,7 @@ int trollDeauth(const char *source_str, const char *ap_str, const char *client_s
     } else {
         char *token;
         char *clients_copy = strdup(client_str);
-        token = strtok(clients_copy, ";");
+        token = strtok(clients_copy, ",");
         while (token && client_count < 10) {
             if (is_valid_mac(token) && parse_mac(token, client_macs[client_count])) {
                 client_count++;
@@ -80,13 +79,13 @@ int trollDeauth(const char *source_str, const char *ap_str, const char *client_s
                 free(clients_copy);
                 return 1;
             }
-            token = strtok(NULL, ";");
+            token = strtok(NULL, ",");
         }
         free(clients_copy);
     }
 
     for (int i = 0; i < client_count; i++) {
-        send_deauth(source_mac, ap_mac, client_macs[i]);
+        send_deauth(client_macs[i], ap_mac, source_mac);
     }
 
     return 0;
@@ -150,13 +149,13 @@ static int do_deauth_cmd(int argc, char **argv) {
 
 void module_deauth(void)
 {
-    deauth_args.source = arg_str0("s", "source", "<mac>", "Custom SSID to use.");
-    deauth_args.ap = arg_str1("a", "ap", "<mac>", "Custom SSID to use.");
-    deauth_args.clients = arg_str0("c", "clients", "<mac>", "Clients to deauth (separated by ';').");
+    deauth_args.source = arg_str0("s", "source", "<mac>", "Custom SSID to use");
+    deauth_args.ap = arg_str1("a", "ap", "<mac>", "Custom SSID to use");
+    deauth_args.clients = arg_str0("c", "clients", "<mac,...>", "Clients to deauth");
     deauth_args.end = arg_end(3);
     const esp_console_cmd_t deauth_cmd = {
         .command = "deauth",
-        .help = "Deauth a client list from a wifi network.",
+        .help = "Deauth a client list from a wifi network",
         .hint = NULL,
         .func = &do_deauth_cmd,
         .argtable = &deauth_args

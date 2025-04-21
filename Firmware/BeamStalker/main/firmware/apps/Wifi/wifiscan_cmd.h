@@ -1,5 +1,5 @@
-#ifndef WIFI_MAIN_H
-#define WIFI_MAIN_H
+#ifndef WIFISCAN_CMD_H
+#define WIFISCAN_CMD_H
 
 #include "../../includes/wifi.h"
 

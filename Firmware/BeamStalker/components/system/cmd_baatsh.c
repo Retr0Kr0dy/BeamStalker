@@ -321,7 +321,7 @@ static int cmd_baatsh(int argc, char **argv) {
 void register_baatsh(void) {
     const esp_console_cmd_t clear_cmd = {
         .command = "clear",
-        .help = "Clear the terminal screen.",
+        .help = "Clear the terminal screen",
         .hint = NULL,
         .func = &cmd_clear,
     };
@@ -331,7 +331,7 @@ void register_baatsh(void) {
     echo_args.end = arg_end(1);
     const esp_console_cmd_t echo_cmd = {
         .command = "echo",
-        .help = "Echo back the input text.",
+        .help = "Echo back the input text",
         .hint = NULL,
         .func = &cmd_echo,
         .argtable = &echo_args
@@ -340,7 +340,7 @@ void register_baatsh(void) {
 
     const esp_console_cmd_t whoami_cmd = {
         .command = "whoami",
-        .help = "Identify yourself.",
+        .help = "Identify yourself",
         .hint = NULL,
         .func = &cmd_whoami
     };
@@ -350,7 +350,7 @@ void register_baatsh(void) {
     sleep_args.end = arg_end(1);
     const esp_console_cmd_t sleep_cmd = {
         .command = "sleep",
-        .help = "Sleep for given milliseconds.",
+        .help = "Sleep for given milliseconds",
         .hint = NULL,
         .func = &cmd_sleep,
         .argtable = &sleep_args
@@ -359,7 +359,7 @@ void register_baatsh(void) {
 
     const esp_console_cmd_t uptime_cmd = {
         .command = "uptime",
-        .help = "Show how long the device has been running.",
+        .help = "Show how long the device has been running",
         .hint = NULL,
         .func = &cmd_uptime
     };

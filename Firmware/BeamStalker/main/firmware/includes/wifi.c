@@ -6,10 +6,11 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "time.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include <cstring>
-
-extern "C" int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3)
+int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3)
 {
     return 0;
 }
@@ -64,39 +65,53 @@ int stop_wifi() {
     return 0;
 }
 
-AP* scan_wifi_ap(int *ap_count) {
-    uint16_t num_aps = MAX_AP_NUM;
-    wifi_ap_record_t ap_records[MAX_AP_NUM];
-    esp_err_t ret;
+AP *scan_wifi_ap(int *ap_count_out) {
+    wifi_scan_config_t scan_config = {
+        .ssid = NULL,
+        .bssid = NULL,
+        .channel = 0,
+        .show_hidden = true,
+        .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+        .scan_time = {
+            .active = { .min = 100, .max = 300 }
+        }
+    };
 
-    ret = esp_wifi_scan_start(NULL, true);
-    if (ret != ESP_OK) {
-        printf("Failed to start scan: %s\n", esp_err_to_name(ret));
+    esp_wifi_scan_start(&scan_config, true);
+    uint16_t ap_num = 0;
+    esp_wifi_scan_get_ap_num(&ap_num);
 
+    if (ap_num == 0) {
+        *ap_count_out = 0;
         return NULL;
     }
 
-    ret = esp_wifi_scan_get_ap_records(&num_aps, ap_records);
-    if (ret != ESP_OK) {
-        printf("Failed to get AP records: %s\n", esp_err_to_name(ret));
+    wifi_ap_record_t *records = calloc(ap_num, sizeof(wifi_ap_record_t));
+    if (!records) {
+        *ap_count_out = 0;
         return NULL;
     }
 
-    AP *ap_info_list = (AP *)malloc(num_aps * sizeof(AP));
-    if (ap_info_list == NULL) {
-        printf("Failed to allocate memory for AP info list\n");
+    esp_wifi_scan_get_ap_records(&ap_num, records);
+
+    AP *result = calloc(ap_num, sizeof(AP));
+    if (!result) {
+        free(records);
+        *ap_count_out = 0;
         return NULL;
     }
 
-    for (int i = 0; i < num_aps; i++) {
-        strncpy(ap_info_list[i].name, (char*)ap_records[i].ssid, sizeof(ap_info_list[i].name) - 1);
-        ap_info_list[i].name[sizeof(ap_info_list[i].name) - 1] = '\0';
-
-        memcpy(ap_info_list[i].address, ap_records[i].bssid, sizeof(ap_records[i].bssid));
+    for (int i = 0; i < ap_num; i++) {
+        strncpy(result[i].name, (char *)records[i].ssid, sizeof(result[i].name) - 1);
+        memcpy(result[i].address, records[i].bssid, 6);
+        result[i].rssi = records[i].rssi;
+        result[i].channel = records[i].primary;
+        result[i].authmode = records[i].authmode;
     }
 
-    *ap_count = num_aps;
-    return ap_info_list;
+    free(records);
+    *ap_count_out = ap_num;
+    return result;
 }
 
 void generate_random_mac(uint8_t *mac_addr) {

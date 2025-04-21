@@ -1,5 +1,5 @@
-#ifndef BEACON_SPAM_H
-#define BEACON_SPAM_H
+#ifndef BEACONSPAM_CMD_H
+#define BEACONSPAM_CMD_H
 
 #include "../../includes/wifi.h"
 
