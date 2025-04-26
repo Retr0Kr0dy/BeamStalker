@@ -5,19 +5,60 @@ extern "C" {
 }
 
 #include "esp_console.h"
+#include "linenoise/linenoise.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
-#include "cmd_system.h"
 
 #include "firmware/helper.h"
 #include "firmware/bitmaps.h"
 #include "firmware/interface.h"
 
-#include "firmware/apps/Wifi/beaconspam_cmd.h"
-#include "firmware/apps/Wifi/deauth_cmd.h"
-#include "firmware/apps/Wifi/wifiscan_cmd.h"
-#include "firmware/apps/Wifi/wifisniff_cmd.h"
-#include "firmware/apps/BLE/blespam_cmd.h"
+#include "firmware/modules/system/cmd_system.h"
+#include "firmware/modules/system/baatsh/fg_wrap.h"
+#include "firmware/modules/system/baatsh/cmd_baatsh.h"
+#include "firmware/modules/wifi/cmd_beaconspam.h"
+#include "firmware/modules/wifi/cmd_deauth.h"
+#include "firmware/modules/wifi/cmd_wifiscan.h"
+#include "firmware/modules/wifi/cmd_wifisniff.h"
+#include "firmware/modules/ble/cmd_blespam.h"
+
+static const char *token_start(const char *buf)
+{
+    if (strncmp(buf, "sh ", 3) == 0) buf += 3;
+    const char *last = buf;
+    for (const char *p = buf; *p; ++p) {
+        if (*p=='&'||*p=='|'||*p==';'||isspace((unsigned char)*p))
+            last = p + 1;
+    }
+    return last;
+}
+
+static void completion_cb(const char *buf, linenoiseCompletions *lc)
+{
+    const char *tok = token_start(buf);
+    size_t prefix_len = (size_t)(tok - buf);
+
+    linenoiseCompletions tmp = { 0, nullptr };
+    esp_console_get_completion(tok, &tmp);
+
+    for (size_t i = 0; i < tmp.len; ++i) {
+        const char *suggest = tmp.cvec[i];
+        size_t newlen = prefix_len + strlen(suggest) + 1;
+        char *full = (char *)malloc(newlen);
+        memcpy(full, buf, prefix_len);
+        strcpy(full + prefix_len, suggest);
+        linenoiseAddCompletion(lc, full);
+        free(full);
+    }
+
+    for (size_t i = 0; i < tmp.len; ++i) free(tmp.cvec[i]);
+    free(tmp.cvec);
+}
+
+static char *hint_cb(const char *buf, int *color, int *bold)
+{
+    return (char *)esp_console_get_hint(token_start(buf), color, bold);
+}
 
 extern "C" void app_main(void) {
     initBoard();
@@ -41,14 +82,16 @@ extern "C" void app_main(void) {
 
     /* Loads Modules */
     esp_console_register_help_command();
-
     register_system();
+    register_builtins();
+
     module_beaconspam();
     module_deauth();
     module_wifiscan();
     module_wifisniff();
     module_blespam();
 
+/*
 #if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
     esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_console_new_repl_uart(&hw_config, &repl_config, &repl));
@@ -58,6 +101,43 @@ extern "C" void app_main(void) {
 
     ESP_ERROR_CHECK(esp_console_start_repl(repl));
 
-    /* Prod ready no log after startup*/
-    esp_log_level_set("*", ESP_LOG_NONE);
+    linenoiseSetCompletionCallback(completion_cb);
+    linenoiseSetHintsCallback(hint_cb);
+
+    signal_ctrl_init();
+
+    esp_log_level_set("*", ESP_LOG_WARN);
+*/
+
+ 
+#if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
+    esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_console_new_repl_uart(&hw_config, &repl_config, &repl));
+#else
+#error Unsupported console type
+#endif
+
+    linenoiseSetCompletionCallback(completion_cb);
+    linenoiseSetHintsCallback(hint_cb);
+    linenoiseHistorySetMaxLen(50);
+
+    signal_ctrl_init();
+
+    xTaskCreatePinnedToCore([](void *){
+            const char *p =  
+            "\001\033[32m\002"
+            "# "
+            "\001\033[0m\002";
+            for (;;) {
+                char *line = linenoise(p);
+                if (!line) continue;
+                if (*line) {
+                    linenoiseHistoryAdd(line);
+                    shell_run_fg((const char *)line);
+                }
+                linenoiseFree(line);
+            }
+        }, "repl", 4096, NULL, tskIDLE_PRIORITY + 5, NULL, tskNO_AFFINITY);
+
+    esp_log_level_set("*", ESP_LOG_WARN);
 }

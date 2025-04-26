@@ -1,4 +1,4 @@
-![](https://github.com/Retr0Kr0dy/BeamStalker/blob/main/assets/beamstalker.png)
+![](https://github.com/Retr0Kr0dy/BeamStalker/blob/main/assets/beamstalker-dark-background.png)
 
 BeamStalker is open-source firmware for esp based boards designed for RF experimentation, encouraging collaboration and ethical exploration. No profit motive here—just a project for those who want to mess around with RF tech and hack their way through.
 
@@ -53,7 +53,9 @@ For more specific usage docs, go check the [wiki](https://retr0kr0dy.github.io/B
 - [@Eun0us](https://github.com/Eun0us) for the incredible research work on the [esp console](https://github.com/Eun0us/Shell-ESP32)
 - [@bmorcelli](https://github.com/bmorcelli) for his genius [M5Launcher](https://github.com/bmorcelli/Launcher) and work on [Bruce Firmware](https://github.com/pr3y/Bruce)
 - [@pr3y](https://github.com/pr3y) also for [Bruce Firmware](https://github.com/pr3y/Bruce)
-- [7h30th3r0n3](https://github.com/7h30th3r0n3) for the [Evil-M5Project](https://github.com/7h30th3r0n3/Evil-M5Project)
+- [@7h30th3r0n3](https://github.com/7h30th3r0n3) for the [Evil-M5Project](https://github.com/7h30th3r0n3/Evil-M5Project)
+- [@risinek](https://github.com/risinek/) for the [pcap serializer](https://github.com/risinek/esp32-wifi-penetration-tool/tree/master/components/pcap_serializer)
+- [@Spacehuhn](https://github.com/SpacehuhnTech/esp8266_deauther) for the [deauth bypass](https://github.com/SpacehuhnTech/esp8266_deauther) on esp
 - and all other projects that I took inspiration from; knowledge should be free 🏴‍☠️.
 ---
 *Made with fun by akpalanaza*
