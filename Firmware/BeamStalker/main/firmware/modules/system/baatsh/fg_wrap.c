@@ -47,7 +47,7 @@ bool shell_run_fg(const char *line)
    
     TaskHandle_t child;
     if (xTaskCreate(fg_task, "fg", 4096, ctx,
-                    tskIDLE_PRIORITY + 1, &child) != pdPASS) {
+                    tskIDLE_PRIORITY + 4, &child) != pdPASS) {
         puts("spawn error");
         free(ctx->cmd);
         free(ctx);

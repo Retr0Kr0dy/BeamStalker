@@ -44,14 +44,25 @@ void stop_pps_timer() {
     }
 }
 
-int start_wifi(wifi_mode_t mode, bool promiscious) {
-    wifi_init_config_t wifi_cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&wifi_cfg));
+int start_wifi(wifi_mode_t mode, bool promiscuous) {
+    wifi_mode_t current_mode;
+    bool already_init = false;
+
+    esp_err_t err = esp_wifi_get_mode(&current_mode);
+    if (err == ESP_OK) {
+        already_init = true;
+    }
+
+    if (!already_init) {
+        wifi_init_config_t wifi_cfg = WIFI_INIT_CONFIG_DEFAULT();
+        ESP_ERROR_CHECK(esp_wifi_init(&wifi_cfg));
+    }
+
     ESP_ERROR_CHECK(esp_wifi_set_mode(mode));
     ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_ERROR_CHECK(esp_wifi_set_channel(CHANNEL, WIFI_SECOND_CHAN_NONE));
-    ESP_ERROR_CHECK(esp_wifi_set_promiscuous(promiscious));
 
+    ESP_ERROR_CHECK(esp_wifi_set_channel(CHANNEL, WIFI_SECOND_CHAN_NONE));
+    ESP_ERROR_CHECK(esp_wifi_set_promiscuous(promiscuous));
     ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(20));
 
     return 0;

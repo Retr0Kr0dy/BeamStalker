@@ -25,6 +25,6 @@ jobs:
       uses: espressif/esp-idf-ci-action@v1
       with:
         command: /app/${{ github.repository }}/patch-esp-idf.sh && /app/${{ github.repository }}/Firmware/BeamStalker/build.sh
-        esp_idf_version: v4.4
+        esp_idf_version: v5.4
         target: ${{ matrix.idf_target }}
         path: 'Firmware/BeamStalker'

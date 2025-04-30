@@ -9,6 +9,8 @@
 
 #include "../../utils/wifi.h"
 
+#define MAX_SSIDS 32
+
 void send_beacon(const char *ssid, const uint8_t *mac_addr, uint8_t channel) {
     uint8_t beacon_frame[128] = {0};
     int ssid_len = strlen(ssid);
@@ -106,12 +108,14 @@ char *generate_ssid(int charset) {
 }
 
 void trollBeacon(int charset, const char *custom) {
-    const char *ssid;
+    char *ssid = NULL;
+    bool should_free = false;
 
     if (custom != NULL) {
-        ssid = custom;
+        ssid = (char *)custom;
     } else {
         ssid = generate_ssid(charset);
+        should_free = true;
     }
 
     if (ssid == NULL) {
@@ -126,7 +130,11 @@ void trollBeacon(int charset, const char *custom) {
         send_beacon(ssid, mac_addr, CHANNEL);
     }
 
-    printf ("[BEACONSPAM] Sending frame: %s\n", ssid);
+//    printf ("[BEACONSPAM] Sending frame: %s\n", ssid);
+
+    if (should_free) {
+        free(ssid);
+    }
 }
 
 static struct {
@@ -143,31 +151,51 @@ static int do_beaconspam_cmd(int argc, char **argv) {
     }
 
     int charset = 0;
-    const char *custom_ssid = NULL;
-
     if (beaconspam_args.charset->count > 0) {
         charset = beaconspam_args.charset->ival[0];
     }
 
+    char *ssid_list[MAX_SSIDS] = {0};
+    int ssid_count = 0;
+
     if (beaconspam_args.customs->count > 0) {
-        custom_ssid = beaconspam_args.customs->sval[0];
+        char *raw = strdup(beaconspam_args.customs->sval[0]);
+        char *token = strtok(raw, ",");
+        while (token && ssid_count < MAX_SSIDS) {
+            ssid_list[ssid_count++] = strdup(token);
+            token = strtok(NULL, ",");
+        }
+        free(raw);
     }
 
     start_wifi(WIFI_MODE_STA, true);
-    init_pps_timer();
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(300));
+
+    int current = 0;
+
+    printf ("[BEACONSPAM] Spam started\n");
 
     while (1) {
         if (app_sig_abort()) {
             puts("\nQuitting...");
             break;
         }
+
+        if (ssid_count > 0) {
+            trollBeacon(charset, ssid_list[current]);
+            current = (current + 1) % ssid_count;
+        } else {
+            trollBeacon(charset, NULL);
+        }
+
         packet_count++;
-        trollBeacon(charset, custom_ssid);    
         taskYIELD();
     }
 
-    stop_pps_timer();
+    for (int i = 0; i < ssid_count; i++) {
+        free(ssid_list[i]);
+    }
+
     stop_wifi();
     vTaskDelay(pdMS_TO_TICKS(100));
 
@@ -177,7 +205,7 @@ static int do_beaconspam_cmd(int argc, char **argv) {
 void module_beaconspam(void)
 {
     beaconspam_args.charset = arg_int0("c", "charset", "<id>", "Charset to generate SSID with");
-    beaconspam_args.customs = arg_str0("s", "ssid", "<ssid>", "Custom SSID to use");
+    beaconspam_args.customs = arg_str0("s", "ssid", "<ssid,...>", "Custom SSID to use");
     beaconspam_args.end = arg_end(2);
     const esp_console_cmd_t beaconspam_cmd = {
         .command = "beaconspam",

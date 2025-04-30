@@ -17,15 +17,7 @@ Currently you have two choices, either you get the latest bin file for you board
 
 ## 📖 Usage
 
-You got 3 main way to control the firmware :
-
-- Main one, using custom gpio, you will need to have a board with button, but it's the intend way of usage.
-- Second one, is using the main button on esp (short press, long press, ...) but it's currently buggy.
-- Third one, is using the serial console, but this imply that you have a phone or computer nearby to control.
-
-### Current work in progress...
-
-This is where it get weirder, now inspired by this [Shell-ESP32](https://github.com/Eun0us/Shell-ESP32) project, now the main control for the firmware is using CLI.
+This project is mainly a CLI giving utlra modular capabilities inspired by this [Shell-ESP32](https://github.com/Eun0us/Shell-ESP32) project.
 
 For more specific usage docs, go check the [wiki](https://retr0kr0dy.github.io/BeamStalker).
 
@@ -37,15 +29,16 @@ For more specific usage docs, go check the [wiki](https://retr0kr0dy.github.io/B
 |Wifi|Deauther|Spam either boadcast, or targeted client with deauth frame|Fully implemented|
 |Wifi|WifiSniffer|Sniff 802.11 frame accroding to a given filter|Fully Implemented|
 |BLE|BleSpam|Spam nearby client with ble adv frames|Fully implemented|
-|RF|RecordReplay|Record and replay subghz frame|To do|
+|RF|RecordReplay|Record and replay subghz frame|Implementing|
 |RF|TPMS|Forge and patch tpms frame|To do|
 
 ## 🖥️ Supported boards
 
 - [esp32](https://www.espressif.com/en/products/socs/esp32)
 - [esp32s3](https://www.espressif.com/en/products/socs/esp32s3)
-- [M5Cardputer](https://shop.m5stack.com/products/m5stack-cardputer-kit-w-m5stamps3)
-- [HeltecV3](https://heltec.org/project/wifi-lora-32-v3/)
+> - [M5Cardputer](https://shop.m5stack.com/products/m5stack-cardputer-kit-w-m5stamps3) (not on V0.3)
+
+> - [HeltecV3](https://heltec.org/project/wifi-lora-32-v3/) (not on V0.3)
 
 ## 🙏 Acknowledgements / other cool projects
 

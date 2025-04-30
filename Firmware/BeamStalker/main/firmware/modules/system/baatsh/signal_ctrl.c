@@ -1,5 +1,7 @@
 #include "signal_ctrl.h"
-#include "driver/uart.h"
+
+#include <unistd.h>
+#include <stdint.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -8,15 +10,14 @@ static volatile bool g_bg    = false;
 
 static void uart_sniffer(void *arg)
 {
-    const uart_port_t CONSOLE_UART = UART_NUM_0;
     uint8_t byte;
-
     for (;;) {
-        if (uart_read_bytes(CONSOLE_UART, &byte, 1,
-                            pdMS_TO_TICKS(10)) == 1) {
-            if (byte == 0x03) g_abort = true;
-            if (byte == 0x1A) g_bg    = true;
+        int r = read(0, &byte, 1);
+        if (r == 1) {
+            if (byte == 0x03) g_abort = true;  // Ctrl+C
+            if (byte == 0x1A) g_bg    = true;  // Ctrl+Z
         }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
