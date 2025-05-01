@@ -32,10 +32,11 @@ For more specific usage docs, go check the [wiki](https://retr0kr0dy.github.io/B
 |RF|RecordReplay|Record and replay subghz frame|Implementing|
 |RF|TPMS|Forge and patch tpms frame|To do|
 
-## 🖥️ Supported boards
+## 🖥️ Supported chips
 
 - [esp32](https://www.espressif.com/en/products/socs/esp32)
 - [esp32s3](https://www.espressif.com/en/products/socs/esp32s3)
+- [esp32c3](https://www.espressif.com/en/products/socs/esp32c3) (under construction)
 > - [M5Cardputer](https://shop.m5stack.com/products/m5stack-cardputer-kit-w-m5stamps3) (not on V0.3)
 
 > - [HeltecV3](https://heltec.org/project/wifi-lora-32-v3/) (not on V0.3)

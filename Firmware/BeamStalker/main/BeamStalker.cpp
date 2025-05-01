@@ -9,6 +9,8 @@ extern "C" {
 #include "nvs_flash.h"
 #include "esp_log.h"
 #include <cctype>
+#include "driver/usb_serial_jtag.h"
+#include "esp_vfs_dev.h"
 
 #include "firmware/modules/hardware/cmd_i2c.h"
 #include "firmware/modules/hardware/cmd_spi.h"
@@ -79,7 +81,6 @@ extern "C" void app_main(void) {
     repl_config.prompt = "striker:>";
     repl_config.max_cmdline_length = CONFIG_CONSOLE_MAX_COMMAND_LINE_LENGTH;
 
-    /* Loads Modules */
     esp_console_register_help_command();
     register_system();
     register_builtins();
@@ -94,13 +95,25 @@ extern "C" void app_main(void) {
     module_wifisniff();
     module_blespam();
 
-#if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
-    esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_console_new_repl_uart(&hw_config, &repl_config, &repl));
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+    esp_console_dev_usb_serial_jtag_config_t usb_cfg =
+        ESP_CONSOLE_DEV_USB_SERIAL_JTAG_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(
+        esp_console_new_repl_usb_serial_jtag(&usb_cfg, &repl_config, &repl)
+    );
+#elif CONFIG_ESP_CONSOLE_UART_DEFAULT || CONFIG_ESP_CONSOLE_UART_CUSTOM
+    esp_console_dev_uart_config_t uart_cfg =
+        ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(
+        esp_console_new_repl_uart(&uart_cfg, &repl_config, &repl)
+    );
 #else
-#error Unsupported console type
+    #error "Unsupported console type"
 #endif
 
+    setvbuf(stdout, NULL, _IONBF, 0);
+
+    linenoiseSetMultiLine(0);
     linenoiseSetCompletionCallback(completion_cb);
     linenoiseSetHintsCallback(hint_cb);
     linenoiseHistorySetMaxLen(50);
@@ -111,6 +124,7 @@ extern "C" void app_main(void) {
             const char *p =  
     "\033[0;32m# \033[0m";
             for (;;) {
+                fflush(stdout);
                 char *line = linenoise(p);
                 if (!line) continue;
                 if (*line) {
