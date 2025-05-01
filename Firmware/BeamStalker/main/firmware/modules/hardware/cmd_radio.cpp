@@ -79,7 +79,7 @@ static struct {
     struct arg_int *sf, *cr, *pwr;
     struct arg_str *hex;
     struct arg_end *end;
-} tx_args, rx_args;
+} tx_args;
 
 static int cmd_radio_init(int argc, char **argv) {
     void *argtable[] = { init_args.chan, init_args.drv, init_args.dio1, init_args.rst, init_args.busy, init_args.end };
@@ -178,6 +178,15 @@ static int cmd_radio_tx(int argc, char **argv) {
     }
     return 0;
 }
+
+static struct {
+    struct arg_int *slot;
+    struct arg_dbl *freq, *bw;
+    struct arg_str *mod;
+    struct arg_dbl *bitrate;
+    struct arg_int *sf, *cr, *pwr;
+    struct arg_end *end;
+} rx_args;
 
 static int cmd_radio_rx(int argc, char **argv) {
     void *argtable[] = { rx_args.slot, rx_args.freq, rx_args.bw, rx_args.mod, rx_args.bitrate, rx_args.sf, rx_args.cr, rx_args.pwr, rx_args.end };
@@ -366,7 +375,7 @@ extern "C" void register_radio(void) {
     rx_args.sf   = arg_int1(NULL, "sf", "<sf>", "Spreading factor (LoRa)");
     rx_args.cr   = arg_int1(NULL, "cr", "<cr>", "Coding rate (LoRa)");
     rx_args.pwr  = arg_int1(NULL, "pwr", "<dBm>", "Output power");
-    rx_args.end  = arg_end(9);
+    rx_args.end  = arg_end(8);
 
     esp_console_cmd_t cmd_rx = {
         .command = "radio-rx",
