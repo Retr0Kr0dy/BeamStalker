@@ -12,6 +12,8 @@ extern "C" {
 #include "driver/usb_serial_jtag.h"
 #include "esp_vfs_dev.h"
 
+#include "lvgl.h"
+
 #include "firmware/modules/hardware/cmd_i2c.h"
 #include "firmware/modules/hardware/cmd_spi.h"
 #include "firmware/modules/hardware/cmd_radio.h"

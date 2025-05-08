@@ -1,12 +1,8 @@
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB_RECURSE APP_SOURCES
-    "${SOURCE_DIR}/firmware/*.c" 
-    "${SOURCE_DIR}/firmware/*.cpp" 
-    "${SOURCE_DIR}/firmware/modules/*.c" 
-    "${SOURCE_DIR}/firmware/modules/*.cpp" 
-    "${SOURCE_DIR}/firmware/utils/*.c"
-    "${SOURCE_DIR}/firmware/utils/*.cpp"
+    "${SOURCE_DIR}/**.c" 
+    "${SOURCE_DIR}/**.cpp" 
 )
 
 idf_component_register(
