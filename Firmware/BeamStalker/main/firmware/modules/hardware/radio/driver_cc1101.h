@@ -1,6 +1,6 @@
 #pragma once
 #include "radio_base.h"     
-#include "esp_radio_hal.h
+#include "esp_radio_hal.h"
 #include "radio_errors.h"   
 
 class CC1101_Hack : public CC1101 {
